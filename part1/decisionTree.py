@@ -131,14 +131,7 @@ class DecisionTreeNode:
             else:
                 return subnode[0]
         else:
-            # this_tree_count = self.get_label_count()
-            # max_key, max_val = count_dict_max(this_tree_count)
-            # if this_tree_count[self.class_default] != max_val:
-            #     print("# this_tree_count:", this_tree_count)
-            #     print("# default:", self.class_default)
-            #     assert(False)
-            return self.class_default
-            # return max_key
+            return self.class_defaults
 
     def accept_treevisitor(self, visitor):
         for key in self.tree_dict:
