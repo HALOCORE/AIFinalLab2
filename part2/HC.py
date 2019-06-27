@@ -43,6 +43,7 @@ def clus_dis_maxdis(clus1_ids:list, clus2_ids:list, elem_dis, elem_mapper):
                 max_dis = current_dis
     return max_dis
 
+
 def clus_dis_mindis(clus1_ids:list, clus2_ids:list, elem_dis, elem_mapper):
     min_dis = elem_dis(elem_mapper(clus1_ids[0]), elem_mapper(clus2_ids[0]))
     for c1_id in clus1_ids:
@@ -54,7 +55,10 @@ def clus_dis_mindis(clus1_ids:list, clus2_ids:list, elem_dis, elem_mapper):
                 min_dis = current_dis
     return min_dis
 
-def HC(data, n_clusters):
+
+def HC(data, n_clusters, cluster_ratio=0.95):
+    """增加了第三个默认参数，用于防止离群点干扰。
+    当前4大的cluster加起来占比超过cluster_ratio，第一阶段结束。然后对于剩下的点，就近分配。"""
     datalen = len(data)
     print("# HC 初始化.")
     
@@ -63,7 +67,7 @@ def HC(data, n_clusters):
     
     # 每个cluster含有的数据元素编号
     cluster_dict = {i:[i,] for i in range(datalen)}
-    
+
     # 距离计算函数
     def calc_distance(idx1, idx2):
         return clus_dis_averdis(
@@ -108,14 +112,54 @@ def HC(data, n_clusters):
         return best_cid1, best_cid2, best_dis
 
     print("# HC 开始合并.")
-    while(len(cluster_dict) > n_clusters):
-        print("# 剩余 cluster 数量: %4d \r" % len(cluster_dict))
+
+    # 第一阶段：合并簇，使得最大的n个簇总元素个数超过指定比例
+    biggest_total = 0
+    biggest_ratio = 0
+    # while(len(cluster_dict) > n_clusters):    # 放弃簇个数控制
+    while biggest_ratio < cluster_ratio:        # 改用最大n个占比控制
+
+        # 添加步骤：统计各个cluster含有的元素个数，排序
+        cluster_size_list = sorted([(len(cluster_dict[k]), k) for k in cluster_dict], reverse=True)
+        
+        # 添加步骤：找出最大n_cluster个看占比
+        biggest_clusters = cluster_size_list[:n_clusters]
+        biggest_total = sum([tp[0] for tp in biggest_clusters])
+        biggest_ratio = biggest_total / datalen
+    
+        # 添加步骤：调试
+        print("ratio: %5f" % biggest_ratio, "  target_ratio: %5f" % cluster_ratio, 
+            "  cluster-count: %4d  |  " % len(cluster_dict),
+            biggest_clusters)
+
         cid1, cid2, _ =  get_nearest_cluster_idx()
         combine_cluster(cid1, cid2)
+
+    # 第二阶段：就近指派离群簇 （不再保证数据结构一致性。直接修改idx_list元素归属簇列表）
+    cluster_size_list = sorted([(len(cluster_dict[k]), k) for k in cluster_dict], reverse=True)
+    big_clusters = [pr[1] for pr in cluster_size_list[:n_clusters]]
+    small_clusters = [pr[1] for pr in cluster_size_list[n_clusters:]]
+    for small_idx in small_clusters:
+        # 对每个小簇
+        best_idx = big_clusters[0]
+        best_distance = calc_distance(small_idx, best_idx)
+        for cur_idx in big_clusters:
+            # 找出距离最近的大簇
+            if cur_idx != best_idx:
+                cur_distance = calc_distance(small_idx, cur_idx)
+                if cur_distance < best_distance:
+                    best_distance = cur_distance
+                    best_idx = cur_idx
+        # 修改idx_list
+        small_elem_idxs = cluster_dict[small_idx]
+        for elem_idx in small_elem_idxs:
+            idx_list[elem_idx] = best_idx
+
     print("# HC 完成.")
+    assert(len(set(idx_list)) == n_clusters)
     return idx_list
 
-    int
+    
 # -----------------------------------------------------------------------
 
 def test():

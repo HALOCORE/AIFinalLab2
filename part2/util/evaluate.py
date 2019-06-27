@@ -56,6 +56,16 @@ def cluster_RI(cluster_labels:list, real_labels:list):
 
 def evaluate(cluster_labels:list, real_labels:list, verbose=True):
     print("# cluster evaluate.")
+    # 统计真实标签和聚类标签
+    def get_descent_count(labels:list):
+        label_set = set(labels)
+        label_counts = sorted([(labels.count(key), key) for key in label_set], reverse=True)
+        assert(sum([x[0] for x in label_counts]) == len(labels))
+        return label_counts
+    cluster_count_result = get_descent_count(cluster_labels)
+    real_count_result = get_descent_count(real_labels)
+    print("    CLUSTER_COUNT: ", cluster_count_result)
+    print("    REAL_COUNT: ", real_count_result)
     purity = cluster_purity(cluster_labels, real_labels)
     print("    purity: %f" % purity)
     ri = cluster_RI(cluster_labels, real_labels)

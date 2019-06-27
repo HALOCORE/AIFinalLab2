@@ -13,6 +13,9 @@ from util import evaluate
 
 
 def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10):
+    # trainset, trainlabel, testset, testlabel 是训练集和测试集
+    # sigma=1 是默认的高斯核函数sigma值
+    # marginC=10 是默认的软边界参数
     assert(len(trainset) == len(trainlabel))
     assert(len(testset) == len(testlabel))
     classes = set(trainlabel)

@@ -99,10 +99,11 @@ def chooseBestFeature(dataset:list, datalabel:list):
 
 
 class DecisionTreeNode:
-    def __init__(self, feature_idx, entropy, info_gain):
+    def __init__(self, feature_idx, entropy, info_gain, class_default):
         self.entropy = entropy
         self.info_gain = info_gain
         self.feature_idx = feature_idx
+        self.class_default = class_default
         # tree_dict里是 {key1:子树, key2:(类别,个数), key3:子树, ...}
         self.tree_dict = dict() 
         # 用于对未知数据预测时，猜测label
@@ -130,9 +131,14 @@ class DecisionTreeNode:
             else:
                 return subnode[0]
         else:
-            this_tree_count = self.get_label_count()
-            max_key, _ = count_dict_max(this_tree_count)
-            return max_key
+            # this_tree_count = self.get_label_count()
+            # max_key, max_val = count_dict_max(this_tree_count)
+            # if this_tree_count[self.class_default] != max_val:
+            #     print("# this_tree_count:", this_tree_count)
+            #     print("# default:", self.class_default)
+            #     assert(False)
+            return self.class_default
+            # return max_key
 
     def accept_treevisitor(self, visitor):
         for key in self.tree_dict:
@@ -182,9 +188,15 @@ def createTree_core(dataset:list, datalabel:list, filter_size:int):
     返回：数根节点
     """
     bestf_idx, entropy, info_gain = chooseBestFeature(dataset, datalabel)
+    count_dict = get_count_dict(datalabel)
+    counts = sorted([(count_dict[key], key) for key in count_dict], reverse=True)
+    assert(len(counts) > 0)
+    assert(counts[0][0] >= counts[-1][0])
+    
+    class_default = counts[0][1]
     if bestf_idx >= 0 and len(datalabel) > filter_size:
         dataset_dict, datalabel_dict = split_dataset_by_a_feature(dataset, datalabel, bestf_idx)
-        current_root = DecisionTreeNode(bestf_idx, entropy, info_gain)
+        current_root = DecisionTreeNode(bestf_idx, entropy, info_gain, class_default)
         for key in dataset_dict:
             sub_dataset = dataset_dict[key]
             sub_datalabel = datalabel_dict[key]
