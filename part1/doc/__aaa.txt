@@ -1,0 +1,5 @@
+# KNN started-------------
+Accuracy, MacroF1, MicroF1:
+0.7415790411691321 0.7098096217331709 0.741579041169132
+
+My Predict Result: 

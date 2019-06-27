@@ -1,0 +1,31 @@
+# KNN.py ±»µ÷ÓÃ
+# knn. trainsize:22445, testsize:5611.
+miss. None draw
+miss. ten draw
+miss. thirteen draw
+miss. fifteen draw
+miss. sixteen draw
+miss. eleven draw
+miss. fourteen draw
+ progress |#                   | 0.9%miss. fifteen draw
+miss. fifteen draw
+ progress |#                   | 1.8%miss. fourteen draw
+ progress |#                   | 2.7%miss. two draw
+miss. fourteen draw
+miss. fourteen draw
+ progress |#                   | 3.6%miss. nine draw
+miss. thirteen draw
+miss. two draw
+miss. draw fourteen
+miss. fourteen draw
+ progress |#                   | 4.5%miss. fourteen draw
+miss. draw eleven
+miss. eleven draw
+ progress |##                  | 5.3%miss. nine draw
+miss. thirteen draw
+miss. thirteen draw
+miss. fourteen draw
+ progress |##                  | 6.2%miss. fourteen draw
+ progress |##                  | 7.1%miss. six draw
+ progress |##                  | 8.0%miss. ten draw
+miss. twelve draw
