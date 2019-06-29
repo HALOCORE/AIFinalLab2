@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+        <title>人工智能 Lab2-Part1 实验报告</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 22px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body>
+        <h1 id="%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD-lab2-part1-%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">人工智能 Lab2-Part1 实验报告</h1>
+<blockquote>
+<p>实验题目：国际象棋Checkmate预测<br>
+姓名：王博， 学号：PB16020870</p>
+</blockquote>
+<ul>
+<li><a href="#%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD-lab2-part1-%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">人工智能 Lab2-Part1 实验报告</a>
+<ul>
+<li><a href="#1-%E5%AE%9E%E9%AA%8C%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1. 实验要求概述</a>
+<ul>
+<li><a href="#11-%E6%95%B0%E6%8D%AE%E9%9B%86%E4%BB%8B%E7%BB%8D">1.1 数据集介绍</a></li>
+<li><a href="#12-%E5%AE%9E%E7%8E%B0%E7%AE%97%E6%B3%95%E7%9A%84%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.2 实现算法的要求概述</a></li>
+<li><a href="#13-%E8%AF%84%E4%BC%B0%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.3 评估要求概述</a></li>
+<li><a href="#14-%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81%E5%8F%82%E6%95%B0%E9%80%89%E6%8B%A9%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.4 交叉验证/参数选择要求概述</a></li>
+<li><a href="#15-%E6%8F%90%E4%BA%A4%E6%8A%A5%E5%91%8A%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.5 提交报告要求概述</a></li>
+</ul>
+</li>
+<li><a href="#2-%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84">2. 目录结构</a></li>
+<li><a href="#3-%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">3. 算法实现</a>
+<ul>
+<li><a href="#31-k%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">3.1 K近邻算法实现</a></li>
+<li><a href="#32-%E5%86%B3%E7%AD%96%E6%A0%91id3%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">3.2 决策树ID3算法实现</a></li>
+<li><a href="#33-%E5%A4%9A%E5%88%86%E7%B1%BBsvm%E5%AE%9E%E7%8E%B0">3.3 多分类SVM实现</a></li>
+<li><a href="#3-%E7%AE%97%E6%B3%95%E8%BF%90%E8%A1%8C%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96">3 算法运行与可视化</a></li>
+<li><a href="#31-knn%E7%AE%97%E6%B3%95%E8%BF%90%E8%A1%8C">3.1 KNN算法运行</a></li>
+<li><a href="#32-%E5%86%B3%E7%AD%96%E6%A0%91%E7%AE%97%E6%B3%95%E8%BF%90%E8%A1%8C%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96">3.2 决策树算法运行与可视化</a></li>
+<li><a href="#33-svm%E7%AE%97%E6%B3%95%E8%B0%83%E8%AF%95%E4%B8%8E%E8%BF%90%E8%A1%8C">3.3 SVM算法调试与运行</a></li>
+<li><a href="#4-%E8%AF%84%E4%BC%B0%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%92%8C%E6%95%B0%E6%8D%AE%E7%89%B9%E5%BE%81%E5%A4%84%E7%90%86">4 评估算法实现和数据特征处理</a></li>
+<li><a href="#41-%E8%AF%84%E4%BC%B0%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">4.1 评估算法实现</a></li>
+<li><a href="#42-%E6%89%8B%E5%8A%A8%E6%95%B0%E6%8D%AE%E9%99%8D%E7%BB%B4%E6%80%9D%E8%B7%AF">4.2 手动数据降维思路</a></li>
+<li><a href="#43-%E7%89%B9%E5%BE%81%E5%A4%84%E7%90%86%E5%89%8D%E5%90%8E%E5%88%9D%E6%AD%A5%E6%AF%94%E8%BE%83knn">4.3 特征处理前后初步比较(KNN)</a></li>
+<li><a href="#44-%E7%89%B9%E5%BE%81%E7%9A%84%E6%89%8B%E5%8A%A8%E5%A4%84%E7%90%86pca%E9%99%8D%E7%BB%B4%E4%B8%8D%E5%A4%84%E7%90%86%E7%BB%BC%E5%90%88%E6%AF%94%E8%BE%83">4.4 特征的手动处理/PCA降维/不处理综合比较</a></li>
+</ul>
+</li>
+<li><a href="#5-k%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5. K折交叉验证</a>
+<ul>
+<li><a href="#51-k%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">5.1 K折交叉验证算法实现</a></li>
+<li><a href="#52-k%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%955%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5.2 K近邻算法：5折交叉验证</a></li>
+<li><a href="#53-%E5%86%B3%E7%AD%96%E6%A0%91id3%E7%AE%97%E6%B3%955%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5.3 决策树ID3算法：5折交叉验证</a></li>
+<li><a href="#54-svm%E7%AE%97%E6%B3%955%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5.4 SVM算法：5折交叉验证</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-%E5%AE%9E%E9%AA%8C%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1. 实验要求概述</h2>
+<h3 id="11-%E6%95%B0%E6%8D%AE%E9%9B%86%E4%BB%8B%E7%BB%8D">1.1 数据集介绍</h3>
+<ul>
+<li>Krkopt是一个国际象棋的残局数据集，在这张残局的棋盘上，只有白手国王（White King）、白手车（White Rook）、黑手国王（Black King）。本次实验的任务是在给定前面所述的三者的位置的前提下，预测白手玩家能将军所需要的最少步数（这里假设两个玩家的每步走法都是最优的）。</li>
+<li>数据中包含7个属性（含类别），共有28056个样本，数据属性（含类别）如下所述：
+<ol>
+<li>白手国王的列坐标（White King Column）</li>
+<li>白手国王的行坐标（White King Row）</li>
+<li>白手车的行坐标（White Rook Column）</li>
+<li>白手车的列坐标（White Rook Row）</li>
+<li>黑手国王的行坐标（Black King Column）</li>
+<li>黑手国王的列坐标（Black King Row）</li>
+</ol>
+</li>
+<li>类别：最优步数（optimal depth-of-win），从0~16取值，若无法取胜，则为draw，具体分布如下图所示</li>
+</ul>
+<h3 id="12-%E5%AE%9E%E7%8E%B0%E7%AE%97%E6%B3%95%E7%9A%84%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.2 实现算法的要求概述</h3>
+<ul>
+<li>提交一个KNN.py文件，要求通过K近邻算法来解决多分类的问题。</li>
+<li>提交一个decisionTree.py文件，要求调研决策树算法（ID3）并实现来解决多分类的问题。</li>
+<li>提交一个SVM.py文件，要求通过多分类SVM算法来解决多分类的问题。</li>
+<li>详细要求略。</li>
+</ul>
+<h3 id="13-%E8%AF%84%E4%BC%B0%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.3 评估要求概述</h3>
+<ul>
+<li>每个文件的核心函数都要返回对测试数据testset的预测ypred，以及与testlabel进行比较后计算得到的性能指标Accuracy、Macro F1和Micro F1。</li>
+<li>详细要求略。</li>
+</ul>
+<h3 id="14-%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81%E5%8F%82%E6%95%B0%E9%80%89%E6%8B%A9%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.4 交叉验证/参数选择要求概述</h3>
+<ul>
+<li>在数据集上使用交叉验证法来进行训练集和验证集的划分及训练（使用5-fold交叉验证），同时为每个算法挑选合适的参数。</li>
+<li>详细要求略。</li>
+</ul>
+<h3 id="15-%E6%8F%90%E4%BA%A4%E6%8A%A5%E5%91%8A%E8%A6%81%E6%B1%82%E6%A6%82%E8%BF%B0">1.5 提交报告要求概述</h3>
+<ol>
+<li>给出你对各个属性间关系进行处理的思路（若是直接进行训练，可以不写）；</li>
+<li>分别给出算法的伪代码；</li>
+<li>根据评价指标，给出模型评估结果，要求给出对应的图表分析。</li>
+</ol>
+<h2 id="2-%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84">2. 目录结构</h2>
+<pre><code><div>.
+├── KNN.py                  | K近邻
+├── SVM.py                  | 支持向量机
+├── crossValidation.py      | 交叉验证
+├── data
+│   ├── _tool.py            | 随机缩减数据量
+│   ├── testset.csv         | 测试集数据
+│   ├── testsetsmall.csv    | 随机缩减的测试集数据（用于SVM）
+│   ├── trainset.csv        | 训练集数据
+│   └── trainsetsmall.csv   | 随机缩减的训练集数据（用于SVM）
+├── decisionTree.py         | 决策树
+├── doc
+│   ├── lab2_part1.md       | 本部分实验报告
+│   └── pics(截图)
+│       └── ....
+└── util
+    ├── PCA.py              | 主成分分析
+    ├── __init__.py
+    ├── evaluate.py         | 评估
+    ├── getdata.py          | 获取数据
+    ├── gzwrite.py          | 决策树可视化写.dot文件
+    └── myprint.py          | 辅助显示
+</div></code></pre>
+<h2 id="3-%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">3. 算法实现</h2>
+<h3 id="31-k%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">3.1 K近邻算法实现</h3>
+<p>实现KNN需要度量两个元素之间的距离。我的做法是，把所有棋子坐标转换为序数，字母转换为ascii码，一个元素即一个6维矢量。可以选择的距离有欧式距离和曼哈顿距离。</p>
+<p>实现K近邻算法需要实现如下函数。伪代码如下：</p>
+<ul>
+<li>KNN主函数：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">knn</span><span class="hljs-params">(trainset:list, trainlabel:list, testset:list, testlabel:list, k:int)</span>:</span>
+    类别 = 对trainlabel去重
+    预测标签列表 = list()
+    <span class="hljs-keyword">for</span> 测试元素 <span class="hljs-keyword">in</span> testset:
+        预测类别 = knn_core(测试元素, trainset, trainlabel, k)
+        预测标签列表.append(预测类别)
+    Accuracy, MacroF1, MicroF1 = 评估(类别, testlabel, 预测标签列表)
+    <span class="hljs-keyword">return</span> 预测标签列表, Accuracy, MacroF1, MicroF1
+</div></code></pre>
+<ul>
+<li>KNN处理单个元素的函数：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">knn_core</span><span class="hljs-params">(当前待处理元素, trainset:list, trainlabel:list, nb_num:int, debug=False)</span>:</span>
+    <span class="hljs-string">"""knn算法"""</span>
+    创建邻居列表
+    <span class="hljs-keyword">for</span> 元素, 标签 <span class="hljs-keyword">in</span> zip(trainset, trainlabel):
+        更新邻居列表(当前待处理元素, 元素, 标签, 邻居列表, 邻居个数)
+    预测结果 = 根据邻居列表判断最多类别(邻居列表)
+    <span class="hljs-keyword">return</span> 预测结果
+</div></code></pre>
+<ul>
+<li>更新邻居列表：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_neighbors</span><span class="hljs-params">(中心元素, 元素, 标签, 邻居列表: list, 邻居个数限制: int)</span>:</span>
+    <span class="hljs-string">"""更新邻居, 插入排序实现"""</span>
+    <span class="hljs-comment"># 邻居按照小根堆堆排列。序为到中心元素的距离</span>
+    将新元素放在尾部
+    调整小根堆
+    <span class="hljs-keyword">if</span> 堆元素超过邻居个数:
+        移除堆尾部<span class="hljs-number">1</span>个元素
+</div></code></pre>
+<h3 id="32-%E5%86%B3%E7%AD%96%E6%A0%91id3%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">3.2 决策树ID3算法实现</h3>
+<p>实现决策树ID3需要实现如下函数。使用的算法版本在老师PPT基础上稍作修改但逻辑相同：<br>
+<img src="pics/dtl.png" alt="dtl"><br>
+伪代码如下：</p>
+<ul>
+<li>决策树核心函数：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">createTree</span><span class="hljs-params">(trainset:list, trainlabel:list, testset:list, testlabel:list)</span>:</span>
+    决策树 = 创建决策树(trainset, trainlabel)
+    创建预测标签列表
+    <span class="hljs-keyword">for</span> 元素 <span class="hljs-keyword">in</span> testset:
+        预测标签列表.append(决策树.预测(元素))
+    Accuracy, MacroF1, MicroF1 = 评估(训练集所有类别, testlabel, 预测标签列表)
+    <span class="hljs-keyword">return</span> predict_label, Accuracy, MacroF1, MicroF1
+</div></code></pre>
+<ul>
+<li>决策树生成函数：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">createTree_core</span><span class="hljs-params">(dataset:list, datalabel:list)</span>:</span>
+    <span class="hljs-string">"""递归建树函数
+    返回：数根节点
+    """</span>
+    最佳特征, 信息熵, 信息增益 = chooseBestFeature(dataset, datalabel)
+    <span class="hljs-keyword">if</span> 最佳特征存在:
+        特征取值到数据集合映射 = 根据一个特征分割数据集(dataset, datalabel, 最佳特征)
+        当前预测默认值 = 当前比例最高的类别
+        当前节点 = 创建决策树节点(最佳特征, 信息熵, 信息增益, 当前预测默认值)
+        <span class="hljs-keyword">for</span> 特征取值 → (数据集合，标签集合) <span class="hljs-keyword">in</span> 特征取值到数据集合映射:
+            当前节点.该特征取值的孩子 = createTree_core(数据集合，标签集合)
+        <span class="hljs-keyword">return</span> 当前节点
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-comment"># 叶节点</span>
+        叶节点标签 = 当前数据集合的公共标签
+        <span class="hljs-keyword">return</span> (叶节点, 数据元素个数)
+</div></code></pre>
+<ul>
+<li>
+<p>信息熵和条件熵的计算略，理论来自老师PPT:<br>
+<img src="pics/inf.png" alt="信息熵计算"><br>
+<img src="pics/ig.png" alt="ddd"></p>
+</li>
+<li>
+<p>选择最佳特征函数：</p>
+</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">chooseBestFeature</span><span class="hljs-params">(dataset:list, datalabel:list)</span>:</span>
+    <span class="hljs-string">"""选择最好的特征
+    返回：最好的特征, 当前信息熵, 最佳特征的信息增益
+    """</span>
+    当前信息熵 = 计算信息熵(dataset, datalabel)
+    最低信息熵 = current_entropy
+    最佳特征 = <span class="hljs-keyword">None</span>
+    <span class="hljs-keyword">for</span> 特征 <span class="hljs-keyword">in</span> 特征列表:
+        条件熵 = 计算条件熵(特征, dataset, datalabel)
+        更新最低熵和最佳特征(条件熵)
+    信息增益 = 当前信息熵 - 最低信息熵
+    <span class="hljs-keyword">return</span> 最佳特征，当前信息熵，最佳特征的信息增益
+</div></code></pre>
+<ul>
+<li>决策树的预测方法：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DecisionTreeNode</span>:</span>
+    ...
+    <span class="hljs-function"><span class="hljs-keyword">def</span> 预测<span class="hljs-params">(self, 元素)</span>:</span>
+        特征取值 = 元素[self.特征]
+        <span class="hljs-keyword">if</span> 特征取值 <span class="hljs-keyword">in</span> self.tree_dict:
+            <span class="hljs-comment"># 这个feature值，在子树字典中存在</span>
+            子节点 = self.子节点映射(特征取值)
+            <span class="hljs-keyword">if</span> 子节点的类型是 DecisionTreeNode:
+                <span class="hljs-keyword">return</span> 子节点.预测(元素)
+            <span class="hljs-keyword">else</span>:
+                <span class="hljs-keyword">return</span> 本节点预测值
+        <span class="hljs-keyword">else</span>:
+            <span class="hljs-keyword">return</span> 本节点.默认预测值
+    ...
+</div></code></pre>
+<h3 id="33-%E5%A4%9A%E5%88%86%E7%B1%BBsvm%E5%AE%9E%E7%8E%B0">3.3 多分类SVM实现</h3>
+<p>实现多分类SVM需要实现如下函数。伪代码如下：</p>
+<ul>
+<li>多分类核心函数：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">multiClassSVM</span><span class="hljs-params">(trainset, trainlabel, testset, testlabel, sigma=<span class="hljs-number">1</span>, marginC=<span class="hljs-number">10</span>)</span>:</span>
+    <span class="hljs-comment"># trainset, trainlabel, testset, testlabel 是训练集和测试集</span>
+    <span class="hljs-comment"># sigma=1 是默认的高斯核函数sigma值</span>
+    <span class="hljs-comment"># marginC=10 是默认的软边界参数</span>
+    创建类别到SVM的映射
+    <span class="hljs-keyword">for</span> 目标类别 <span class="hljs-keyword">in</span> 所有类别:
+        myfilter = 
+        过滤后标签列表 = 对于每个标签按照标签是否等于目标类别来置位 <span class="hljs-number">1</span> 或 <span class="hljs-number">-1</span>
+        类别到SVM的映射[目标类别] = softSVM(trainset, 过滤后标签列表, sigma, marginC)
+    
+    <span class="hljs-comment"># 做预测</span>
+    预测标签 = 列表()
+    <span class="hljs-keyword">for</span> 元素 <span class="hljs-keyword">in</span> 测试集:
+        <span class="hljs-keyword">for</span> 类别 <span class="hljs-keyword">in</span> 类别到SVM的映射:
+            预测y值 = 类别到SVM的映射[类别].predict(元素)
+            <span class="hljs-keyword">if</span> 预测y值 &gt; 最佳预测y值:
+                最佳预测y值 = 预测y值
+                猜测的类别 = 类别
+        预测标签.append(猜测的类别)
+    
+    <span class="hljs-comment"># 评估</span>
+    Accuracy, MacroF1, MicroF1 = 评估(所有类别, 测试标签, 预测标签)
+    <span class="hljs-keyword">return</span> 预测标签, Accuracy, MacroF1, MicroF1
+</div></code></pre>
+<ul>
+<li>核函数</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">svm_kernel</span><span class="hljs-params">(x1, x2, sigma)</span>:</span>
+    <span class="hljs-keyword">if</span> sigma = <span class="hljs-number">0</span>: 返回线性核函数求值
+    <span class="hljs-keyword">else</span> 带入sigma返回高斯核函数求值
+</div></code></pre>
+<ul>
+<li>软间隔SVM生成</li>
+</ul>
+<pre><code class="language-python"><div>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">softSVM</span><span class="hljs-params">(trainset, trainlabel, sigma, marginC)</span>:</span>
+    <span class="hljs-string">"""marginC为soft margin控制参数"""</span>
+    所有alpha = 求解所有向量alpha(trainset, trainlabel, sigma, marginC)
+    创建一个SVM对象
+    alpha阈值 = <span class="hljs-number">6e-5</span>
+    将所有alpha超过阈值的向量加入支持向量列表
+    找出最大alpha，最大alpha对应向量
+    SVM的b = SUM(最大alpha的y值 - 所有向量与最大alpha支持向量核函数值)
+    <span class="hljs-keyword">return</span> 新建的SVM
+</div></code></pre>
+<ul>
+<li>求解所有向量的alpha
+<ul>
+<li>本部分理论基础是老师的PPT:<br>
+<img src="pics/svmth.png" alt="ppt"></li>
+<li>本部分的实现需要如下依赖：
+<ul>
+<li>使用了python的qpsolvers库来求解二次规划问题</li>
+<li>使用的二次规划求解器是osqp，其可以处理稀疏矩阵。</li>
+<li>使用的稀疏矩阵形式是scipy.sparse中的csc_matrix。</li>
+<li>私用的矩阵运算库是numpy。</li>
+</ul>
+</li>
+<li>qpsolvers要求的输入格式为：</li>
+</ul>
+<pre><code class="language-python"><div>  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">solve_qp</span><span class="hljs-params">(P, q, G=None, h=None, A=None, b=None, solver=<span class="hljs-string">'quadprog'</span>,
+           initvals=None, sym_proj=False)</span>:</span>
+  <span class="hljs-string">"""
+  Solve a Quadratic Program defined as:
+
+      minimize
+          (1/2) * x.T * P * x + q.T * x
+
+      subject to
+          G * x &lt;= h
+          A * x == b
+
+  using one of the available QP solvers.
+  ...
+
+</span></div></code></pre>
+伪代码如下：</li>
+</ul>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">solve_sparse</span><span class="hljs-params">(trainset, trainlabel, sigma, marginC)</span>:</span>
+    train_size = len(trainset)
+    K = 长宽为元素个数的核函数矩阵
+    在K的对角线增加一个小量<span class="hljs-number">1e-5</span>
+
+    q = 长度为元素个数的全部由 <span class="hljs-number">-1</span> 组成的向量
+    
+    G1 = 稀疏矩阵(长宽为元素个数的单位对角阵)
+    G2 = 稀疏矩阵(长宽为元素个数的负单位对角阵)
+    G = 纵向拼接G1, G2
+
+    h1 = 长度为元素个数的全为marginC的向量
+    h2 = 长度为元素个数的全为<span class="hljs-number">0</span>的向量
+    h = 纵向拼接h1和h2
+
+    A = 稀疏矩阵(训练标签) 
+    b = np.asarray([<span class="hljs-number">0</span>])
+    
+    所有alpha求解结果 = 求解二次规划(目标函数(K, q), 小于约束(G, h), 等于约束(A, b), 求解器=<span class="hljs-string">'osqp'</span>)
+    <span class="hljs-keyword">return</span> 所有alpha求解结果
+</div></code></pre>
+<h3 id="3-%E7%AE%97%E6%B3%95%E8%BF%90%E8%A1%8C%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96">3 算法运行与可视化</h3>
+<h3 id="31-knn%E7%AE%97%E6%B3%95%E8%BF%90%E8%A1%8C">3.1 KNN算法运行</h3>
+<ul>
+<li>用全部数据运行KNN，截图如下：<br>
+<img src="pics/1KNN.png" alt="ss"><br>
+可见准确度有0.69。关于其中的评估值的详细说明，在第四节评估算法实现。</li>
+</ul>
+<h3 id="32-%E5%86%B3%E7%AD%96%E6%A0%91%E7%AE%97%E6%B3%95%E8%BF%90%E8%A1%8C%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96">3.2 决策树算法运行与可视化</h3>
+<ul>
+<li>
+<p>用全部数据运行决策树，截图如下：<br>
+<img src="pics/destree.png" alt="ss"><br>
+准确度有0.59.</p>
+</li>
+<li>
+<p>在生成可视化时，由于全部展开太大，所以我每一层仅随即展开一个节点。自动生成的dot文件如图：</p>
+<pre><code class="language-dot"><div>digraph decisionTree{
+  ordering = out;
+  61508256 [color=green, label=&quot;draw
+  2&quot;];
+  61508240 [color=green, label=&quot;draw
+  2&quot;];
+  61508304 [color=green, label=&quot;nine
+  2&quot;];
+  61508288 [color=green, label=&quot;nine
+  2&quot;];
+  61508272 [color=green, label=&quot;nine
+  2&quot;];
+  61474224 [label=&quot;F4
+  (nine)&quot;];
+  61474224 -&gt; 61508240[label=&quot;g&quot;];
+  61474224 -&gt; 61508256[label=&quot;h&quot;];
+  61474224 -&gt; 61508272[label=&quot;e&quot;];
+  61474224 -&gt; 61508288[label=&quot;f&quot;];
+  61474224 -&gt; 61508304[label=&quot;d&quot;];
+  ...
+</div></code></pre>
+<p>根据dot文件导出图片为(每层只展开了一个节点)：<br>
+<img src="pics/treevis.svg" alt="ss"></p>
+</li>
+</ul>
+<h3 id="33-svm%E7%AE%97%E6%B3%95%E8%B0%83%E8%AF%95%E4%B8%8E%E8%BF%90%E8%A1%8C">3.3 SVM算法调试与运行</h3>
+<ul>
+<li>
+<p>首先，我用程序生成了一些二维点，然后有用假想的分界面生成测试样例。尝试用SVM看能否正确分类。</p>
+<ul>
+<li>我首先尝试了两类完全可分离的情况（线性核函数）：<br>
+<img src="pics/SVMclear.png" alt="dd"><br>
+如图可以看到，算法正确的找出了三个支持向量的位置，并且在测试样例上对了99个。准确率很好。</li>
+<li>接着我又尝试了两类在边界处有渗透的情况（线性核函数）：<br>
+<img src="pics/SVMFuzz.png" alt="ss"><br>
+<img src="pics/SVMFuzz2.png" alt="ss"><br>
+可以看到，设置的C=10起了作用，限制了软边界。由于是软边界，支持向量多了很多，alpha的绝对值超过给定阈值的达到几十个。
+分类效果仍然较好，100个里对了97/95个。</li>
+<li>然后我换用高斯核函数，尝试了两类完全可分离的情况（高斯核函数）：<br>
+<img src="pics/SVMGclear.png" alt="ss"><br>
+分类效果较好，准确率高。并且，我根据alpha值的大小决定绘制圈的大小，可以看到重要的支持变量倾向于出现在边界。</li>
+<li>如果过滤超过某个alpha值的支持向量，得到的图像如下。不规则的分类边界被支持向量标出：<br>
+<img src="pics/SVMGFilter.png" alt="ss"></li>
+<li>接着又尝试了两类在边界处有渗透的情况（高斯核函数）：<br>
+<img src="pics/SVMGFuzz.png" alt="SS">
+分类效果就不是很理想了。</li>
+</ul>
+</li>
+<li>
+<p>接下来，我从训练数据中抽取了2500条，从测试数据中抽取了1800条，做测试：<br>
+<img src="pics/SVMV.png" alt="dd"><br>
+可见，在训练数据只有2500条的情况下，就已经达到了0.5的准确率。说明SVM算法实现正确，在本问题上可用。</p>
+</li>
+</ul>
+<h3 id="4-%E8%AF%84%E4%BC%B0%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%92%8C%E6%95%B0%E6%8D%AE%E7%89%B9%E5%BE%81%E5%A4%84%E7%90%86">4 评估算法实现和数据特征处理</h3>
+<h3 id="41-%E8%AF%84%E4%BC%B0%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">4.1 评估算法实现</h3>
+<p>实现了三个评估函数：Accuracy, Macro F1, Micro F1。<br>
+理论基础在助教所给实验要求以及</p>
+<ul>
+<li>Accuracy（准确率），即正确预测的样本占所有测试样本的比重。</li>
+<li>Macro F1：将n分类的评价拆成n个二分类的评价，计算每个二分类的F1 score，n个 F1 score 的平均值即为 Macro F1。</li>
+<li>Micro F1：将n分类的评价拆成n个二分类的评价，将n个二分类评价的TP、FP、FN对应相加，计算评价准确率和召回率，由这2个准确率和召回率计算的F1 score即为Micro F1。</li>
+<li>F1的计算：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>F</mi><mn>1</mn></msub><mo>=</mo><mfrac><mrow><mn>2</mn><mo>∗</mo><mi>P</mi><mo>∗</mo><mi>R</mi></mrow><mrow><mo>(</mo><mi>P</mi><mo>+</mo><mi>R</mi><mo>)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">F_1 = \frac{2 * P * R}{(P + R)} 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.29633em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+其中准确率P和召回率R:<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><mo>=</mo><mfrac><msub><mi>T</mi><mi>P</mi></msub><mrow><mo>(</mo><msub><mi>T</mi><mi>P</mi></msub><mo>+</mo><msub><mi>F</mi><mi>P</mi></msub><mo>)</mo></mrow></mfrac><mo separator="true">,</mo><mi>R</mi><mo>=</mo><mfrac><msub><mi>T</mi><mi>P</mi></msub><mrow><mo>(</mo><msub><mi>T</mi><mi>P</mi></msub><mo>+</mo><msub><mi>F</mi><mi>N</mi></msub><mo>)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">P = \frac{T_P}{(T_P + F_P)},  
+R = \frac{T_P}{(T_P + F_N)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.29633em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.29633em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+<li>值得注意的是:
+<ul>
+<li>如果测试样例中含有训练样例全部类别，那么Micro F1的取值可能和Accuracy相同。</li>
+<li>如果测试样例不含训练样例全部类别，那么计算TP、FP和FN时，仅考虑真实结果中出现的类别，而不是全部类别。</li>
+</ul>
+</li>
+</ul>
+<h3 id="42-%E6%89%8B%E5%8A%A8%E6%95%B0%E6%8D%AE%E9%99%8D%E7%BB%B4%E6%80%9D%E8%B7%AF">4.2 手动数据降维思路</h3>
+<p>按照游戏规则，可知结果和棋子间相对位置关系较大。<br>
+所以，我们忽略白手国王的绝对坐标，计算白手车和黑手国王相对于白手国王的相对位置。<br>
+将6个维度减少到4个，变换如下：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>(</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>y</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>x</mi><mn>2</mn></msub><mo separator="true">,</mo><msub><mi>y</mi><mn>2</mn></msub><mo separator="true">,</mo><msub><mi>x</mi><mn>3</mn></msub><mo separator="true">,</mo><msub><mi>y</mi><mn>3</mn></msub><mo>)</mo><mo>⇒</mo><mo>(</mo><msub><mi>x</mi><mn>2</mn></msub><mo>−</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>y</mi><mn>2</mn></msub><mo>−</mo><msub><mi>y</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>x</mi><mn>3</mn></msub><mo>−</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>y</mi><mn>3</mn></msub><mo>−</mo><msub><mi>y</mi><mn>1</mn></msub><mo>)</mo></mrow><annotation encoding="application/x-tex">(x_1, y_1, x_2, y_2, x_3, y_3) \Rightarrow (x_2 - x_1, y_2 - y_1, x_3 - x_1, y_3 - y_1)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">⇒</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<h3 id="43-%E7%89%B9%E5%BE%81%E5%A4%84%E7%90%86%E5%89%8D%E5%90%8E%E5%88%9D%E6%AD%A5%E6%AF%94%E8%BE%83knn">4.3 特征处理前后初步比较(KNN)</h3>
+<ul>
+<li>
+<p>首先，我不手动处理特征，直接用KNN（欧式距离）跑全部的训练数据和预测数据，结果如下：
+<img src="pics/1KNN.png" alt="ss"><br>
+Accuracy有0.687222。</p>
+</li>
+<li>
+<p>然后，我手动按照3.2的思路将其降为4维，再跑，结果如下：
+<img src="pics/3KNN.png" alt="ss"><br>
+Accuracy只有0.322046。</p>
+</li>
+</ul>
+<p>手动降低维度之后，准确率大幅度下降。<br>
+我又尝试了其它一些降维方式，比如坐标两两相乘，结果仍然较差。为了排除是我降维方式有问题，接下来我尝试了PCA降维。</p>
+<h3 id="44-%E7%89%B9%E5%BE%81%E7%9A%84%E6%89%8B%E5%8A%A8%E5%A4%84%E7%90%86pca%E9%99%8D%E7%BB%B4%E4%B8%8D%E5%A4%84%E7%90%86%E7%BB%BC%E5%90%88%E6%AF%94%E8%BE%83">4.4 特征的手动处理/PCA降维/不处理综合比较</h3>
+<ul>
+<li>
+<p>自己手动降维后，算法准确度下降了。于是，我尝试使用PCA方法，选前四个主成分，再尝试。PCA选出的4个主元的特征值占比达到了92.4%。各个特征值为 [0.248462, 0.240202, 0.231119, 0.204802, 0.056999, 0.018413]。</p>
+</li>
+<li>
+<p>使用PCA降维后数据运行SVM的例子如图所示：<br>
+<img src="pics/SVM.png" alt="ss"></p>
+</li>
+<li>
+<p>将所有尝试结果制作成表格如下：</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">算法名称</th>
+<th style="text-align:center">特征处理</th>
+<th style="text-align:center">trainset使用</th>
+<th style="text-align:center">Accuracy</th>
+<th style="text-align:center">Macro F1</th>
+<th style="text-align:center">Micro F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">KNN(欧式距离)</td>
+<td style="text-align:center">不处理(6个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.687222</td>
+<td style="text-align:center">0.630717</td>
+<td style="text-align:center">0.687222</td>
+</tr>
+<tr>
+<td style="text-align:center">KNN(曼哈顿距离)</td>
+<td style="text-align:center">不处理(6个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.687578</td>
+<td style="text-align:center">0.631296</td>
+<td style="text-align:center">0.687578</td>
+</tr>
+<tr>
+<td style="text-align:center">KNN(欧式距离)</td>
+<td style="text-align:center">处理(4个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.322046</td>
+<td style="text-align:center">0.228962</td>
+<td style="text-align:center">0.282837</td>
+</tr>
+<tr>
+<td style="text-align:center">KNN(曼哈顿距离)</td>
+<td style="text-align:center">处理(4个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.322402</td>
+<td style="text-align:center">0.229786</td>
+<td style="text-align:center">0.322046</td>
+</tr>
+<tr>
+<td style="text-align:center">KNN(欧式距离)</td>
+<td style="text-align:center">PCA(4个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.258421</td>
+<td style="text-align:center">0.203423</td>
+<td style="text-align:center">0.258421</td>
+</tr>
+<tr>
+<td style="text-align:center">KNN(曼哈顿距离)</td>
+<td style="text-align:center">PCA(4个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.282837</td>
+<td style="text-align:center">0.202422</td>
+<td style="text-align:center">0.282837</td>
+</tr>
+<tr>
+<td style="text-align:center">决策树</td>
+<td style="text-align:center">不处理(6个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.590269</td>
+<td style="text-align:center">0.548073</td>
+<td style="text-align:center">0.590269</td>
+</tr>
+<tr>
+<td style="text-align:center">决策树</td>
+<td style="text-align:center">处理(4个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">冲突数据</td>
+<td style="text-align:center">冲突数据</td>
+<td style="text-align:center">冲突数据</td>
+</tr>
+<tr>
+<td style="text-align:center">决策树</td>
+<td style="text-align:center">PCA(4个)</td>
+<td style="text-align:center">100%</td>
+<td style="text-align:center">0.162360</td>
+<td style="text-align:center">0.015520</td>
+<td style="text-align:center">0.162360</td>
+</tr>
+<tr>
+<td style="text-align:center">SVM(σ=1,C=10)</td>
+<td style="text-align:center">不处理(6个)</td>
+<td style="text-align:center">11%</td>
+<td style="text-align:center">0.497222</td>
+<td style="text-align:center">0.396550</td>
+<td style="text-align:center">0.497222</td>
+</tr>
+<tr>
+<td style="text-align:center">SVM(σ=1,C=10)</td>
+<td style="text-align:center">处理(4个)</td>
+<td style="text-align:center">11%</td>
+<td style="text-align:center">0.265555</td>
+<td style="text-align:center">0.195260</td>
+<td style="text-align:center">0.265555</td>
+</tr>
+<tr>
+<td style="text-align:center">SVM(σ=1,C=10)</td>
+<td style="text-align:center">PCA(4个)</td>
+<td style="text-align:center">11%</td>
+<td style="text-align:center">0.280555</td>
+<td style="text-align:center">0.186044</td>
+<td style="text-align:center">0.280555</td>
+</tr>
+</tbody>
+</table>
+<p>通过上述观察，可知处理效果确实不好，手动处理的比PCA得到的前四个主元稍好一些（尽管PCA的前四个主元占了92%特征值总和），而且对于决策树算法，手动处理过后还会发生冲突。<br>
+根据上表综合比较，认为不降维更好。降维对于算法运行时间的收益不大，却极大的影响了准确度。</p>
+<h2 id="5-k%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5. K折交叉验证</h2>
+<h3 id="51-k%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0">5.1 K折交叉验证算法实现</h3>
+<p>基本原理同老师PPT，交叉验证时只有一个训练集，将训练集K等分，然后取其中一份用来评估，剩下的用来训练。<br>
+只要注意选取数据时要均匀采样，不能全部都是一类即可。</p>
+<p>算法简单略，我实现的函数接口是：</p>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">crossValidation</span><span class="hljs-params">(
+        func,       # 分类器（参数已消除）
+        trainset,   # 训练数据
+        trainlabel, # 训练标签
+        fold:int    # 折数
+    )</span>:</span>
+    ...
+    <span class="hljs-keyword">return</span> 平均microF1, microF1列表
+</div></code></pre>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">crossValidationParams</span><span class="hljs-params">(
+        func_generator,         # 分类器生成函数（参数-&gt;分类器）
+        params_list:list,       # 参数列表
+        trainset:list,          # 训练集数据
+        trainlabel:list,        # 训练集标签
+        fold:int                # 交叉验证折数
+    )</span>:</span>
+    ....
+    <span class="hljs-keyword">return</span> {
+        <span class="hljs-string">"mat"</span>:microF1均值矩阵(每一行是一个参数，每一列是一个Fold),
+        <span class="hljs-string">"avers"</span>:microF1均值列表,
+        <span class="hljs-string">"params"</span>:参数列表,
+        <span class="hljs-string">"best_param"</span>:最佳参数,
+        <span class="hljs-string">"max_microF1"</span>: microF1最大值,
+        <span class="hljs-string">"idx"</span>:microF1最大值编号
+    }
+</div></code></pre>
+<p>完成后运行效果如图：
+<img src="pics/cross.png" alt="SS"></p>
+<h3 id="52-k%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%955%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5.2 K近邻算法：5折交叉验证</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">邻居个数</th>
+<th style="text-align:center">Fold 0</th>
+<th style="text-align:center">Fold 1</th>
+<th style="text-align:center">Fold 2</th>
+<th style="text-align:center">Fold 3</th>
+<th style="text-align:center">Fold 4</th>
+<th style="text-align:center">平均 MicroF1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">(3,)</td>
+<td style="text-align:center">0.626643</td>
+<td style="text-align:center">0.632880</td>
+<td style="text-align:center">0.625306</td>
+<td style="text-align:center">0.623079</td>
+<td style="text-align:center">0.628202</td>
+<td style="text-align:center">0.627222</td>
+</tr>
+<tr>
+<td style="text-align:center">(5,)</td>
+<td style="text-align:center">0.724883</td>
+<td style="text-align:center">0.725997</td>
+<td style="text-align:center">0.723101</td>
+<td style="text-align:center">0.718423</td>
+<td style="text-align:center">0.716418</td>
+<td style="text-align:center">0.721764</td>
+</tr>
+<tr>
+<td style="text-align:center">(7,)</td>
+<td style="text-align:center">0.736467</td>
+<td style="text-align:center">0.732903</td>
+<td style="text-align:center">0.743818</td>
+<td style="text-align:center">0.734239</td>
+<td style="text-align:center">0.737804</td>
+<td style="text-align:center">0.737046</td>
+</tr>
+<tr>
+<td style="text-align:center">(9,)</td>
+<td style="text-align:center">0.718423</td>
+<td style="text-align:center">0.716863</td>
+<td style="text-align:center">0.714636</td>
+<td style="text-align:center">0.723324</td>
+<td style="text-align:center">0.719091</td>
+<td style="text-align:center">0.718467</td>
+</tr>
+<tr>
+<td style="text-align:center">(11,)</td>
+<td style="text-align:center">0.712408</td>
+<td style="text-align:center">0.708844</td>
+<td style="text-align:center">0.709958</td>
+<td style="text-align:center">0.707953</td>
+<td style="text-align:center">0.703275</td>
+<td style="text-align:center">0.708487</td>
+</tr>
+</tbody>
+</table>
+<p>TODO:</p>
+<h3 id="53-%E5%86%B3%E7%AD%96%E6%A0%91id3%E7%AE%97%E6%B3%955%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5.3 决策树ID3算法：5折交叉验证</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">最小样本数量</th>
+<th style="text-align:center">Fold 0</th>
+<th style="text-align:center">Fold 1</th>
+<th style="text-align:center">Fold 2</th>
+<th style="text-align:center">Fold 3</th>
+<th style="text-align:center">Fold 4</th>
+<th style="text-align:center">平均 MicroF1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">(0,)</td>
+<td style="text-align:center">0.566273</td>
+<td style="text-align:center">0.546892</td>
+<td style="text-align:center">0.555580</td>
+<td style="text-align:center">0.561149</td>
+<td style="text-align:center">0.545110</td>
+<td style="text-align:center">0.555001</td>
+</tr>
+<tr>
+<td style="text-align:center">(3,)</td>
+<td style="text-align:center">0.565828</td>
+<td style="text-align:center">0.545333</td>
+<td style="text-align:center">0.554244</td>
+<td style="text-align:center">0.559145</td>
+<td style="text-align:center">0.546001</td>
+<td style="text-align:center">0.554110</td>
+</tr>
+<tr>
+<td style="text-align:center">(5,)</td>
+<td style="text-align:center">0.560258</td>
+<td style="text-align:center">0.539764</td>
+<td style="text-align:center">0.550902</td>
+<td style="text-align:center">0.555358</td>
+<td style="text-align:center">0.538204</td>
+<td style="text-align:center">0.548897</td>
+</tr>
+<tr>
+<td style="text-align:center">(10,)</td>
+<td style="text-align:center">0.534863</td>
+<td style="text-align:center">0.514591</td>
+<td style="text-align:center">0.533081</td>
+<td style="text-align:center">0.531076</td>
+<td style="text-align:center">0.512364</td>
+<td style="text-align:center">0.525195</td>
+</tr>
+<tr>
+<td style="text-align:center">(20,)</td>
+<td style="text-align:center">0.459568</td>
+<td style="text-align:center">0.438182</td>
+<td style="text-align:center">0.456226</td>
+<td style="text-align:center">0.443083</td>
+<td style="text-align:center">0.438405</td>
+<td style="text-align:center">0.447093</td>
+</tr>
+</tbody>
+</table>
+<p>TODO:</p>
+<h3 id="54-svm%E7%AE%97%E6%B3%955%E6%8A%98%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81">5.4 SVM算法：5折交叉验证</h3>
+<ul>
+<li>在我的SVM实现中，支持对sigma和C的调节，但是也有一些参数是不支持调节的。不支持调节的参数有：
+<ul>
+<li>高斯核矩阵对角线小量1e-6</li>
+<li>alpha近似为0的判别（小于最大alpha的0.5%）</li>
+</ul>
+</li>
+<li>可以调节的参数以及计划的调节范围是：
+<ul>
+<li>σ： 计划调节0, 1, 2。</li>
+<li>C:  即算法中的marginC，计划调节10，20，1000</li>
+</ul>
+</li>
+<li>由于SVM跑的太慢，我没有办法尝试所有的参数组合，所以没有让参数任意组合，二十减少了工作量，做了以下三类实验：
+<ul>
+<li>C=10的情况下改变σ</li>
+<li>σ=0(线性核)的情况下改变C</li>
+<li>σ=1(高斯核)的情况下改变C</li>
+</ul>
+</li>
+</ul>
+<p>表格如下；</p>
+
+    </body>
+    </html>

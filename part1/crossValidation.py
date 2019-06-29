@@ -48,6 +48,7 @@ def crossValidationParams(func_generator, params_list:list, trainset:list, train
     return {
         "mat":microF1_mat,
         "avers":microF1_avers,
+        "params":params_list,
         "best_param":params_list[max_miF1_idx],
         "max_microF1": max_miF1,
         "idx":max_miF1_idx
@@ -56,7 +57,7 @@ def crossValidationParams(func_generator, params_list:list, trainset:list, train
 
 def main():
     from decisionTree import createTree
-    from SVM import multiClassSVM
+    #from SVM import multiClassSVM
     from KNN import knn
     from util import getdata
     from util.myprint import print_mdtable_head, print_mdtable_body
@@ -69,12 +70,12 @@ def main():
     def svm_generator(params):
         return lambda trs, trl, tss, tsl: multiClassSVM(trs, trl, tss, tsl, sigma=params[0], marginC=params[1])
     # results = crossValidationParams(knn_generator, [(3,),(5,),(7,),(9,),(11,)], trainset, trainlabel, 5)
-    # results = crossValidationParams(decTree_generator, [(0,),(5,),(10,),(15,),(20,)], trainset, trainlabel, 5)
+    results = crossValidationParams(decTree_generator, [(0,),(3,),(5,),(10,),(20,)], trainset, trainlabel, 5)
     # results = crossValidationParams(svm_generator, [(0,5),(0,10),(0,100),(2,5),(2,10),(2,100)], trainset, trainlabel, 5)
-    results = crossValidationParams(svm_generator, [(2,5),(2,10),(2,100)], trainset, trainlabel, 5)
+    # results = crossValidationParams(svm_generator, [(2,5),(2,10),(2,100)], trainset, trainlabel, 5)
     print(results)
-    print_mdtable_head(list(range(5)))
-    print_mdtable_body(results['mat'])
+    print_mdtable_head(['<待填写>'] + ['Fold %s' % idx for idx in list(range(5))] + ['平均 MicroF1'])
+    print_mdtable_body(results['mat'], rownames=results['params'], append_gens=[lambda x:sum(x)/len(x)], item_format='%.6f')
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,9 @@
-from PCA import PCA, visualize_PCA_2D
+import PCA
 from KMeans import KMeans
 
 def KMeans_PCA(k:int, data:list, threshold:float):
-    dataset, _, _, _ = PCA(data, threshold)
+    dataset, _, _, _ = PCA.PCA(data, threshold)
+    # dataset, _, _, _ = PCA.standard_PCA(data, 8)
     cluster_labels = KMeans(k, dataset)
     return dataset, cluster_labels
 
@@ -23,7 +24,7 @@ def main():
     purity, ri = evaluate.evaluate(cluster_labels, real_labels)
     print("data-size: %d, class-count: %d" % (len(dataset), real_classes_count))
     print(purity, ri)
-    visualize_PCA_2D(trans_dataset, cluster_labels)
+    PCA.visualize_PCA_2D(trans_dataset, cluster_labels)
     print("# Done.")
 
 do_test = False

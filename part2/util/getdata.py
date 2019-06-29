@@ -11,10 +11,17 @@ def transform_elemlist(elems):
         trans_elems.append(transform_elem(elem))
     return trans_elems
 
-
+import os
 def get_data(filename):
     """得到数据列表"""
-    with open(filename, 'r') as myfile:
+    with open(
+        os.path.join(
+            os.path.join(
+                os.path.dirname(__file__),
+                os.pardir
+            ), 
+            filename),
+        'r') as myfile:
         lines = myfile.readlines()[1:]
         elems = list()
         labels = list()

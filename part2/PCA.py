@@ -12,6 +12,7 @@ def PCA(data:list, threshold:float, verbose=True):
         np_data[i] -= data_mean[i]
     cov_mat = (1 / data_shape[1]) * np.matmul(np_data, np_data.T)
     eig_vals, eig_vecs = np.linalg.eig(cov_mat)
+    eig_vecs = eig_vecs.T
     sort_eigs_list = [(eig_vals[i], i) for i in range(len(eig_vals))]
     sort_eigs_list.sort(reverse=True)
     eig_vals_sorted = np.asarray([x[0] for x in sort_eigs_list])
@@ -32,6 +33,7 @@ def PCA(data:list, threshold:float, verbose=True):
     return pc_data, pc_count, eig_ratioacc, trans_info
 
 
+
 def apply_PCA_transform(testdata:list, trans_info):
     np_data = np.asarray(testdata, dtype=np.float).T
     for i in range(np_data.shape[0]):
@@ -45,7 +47,7 @@ def visualize_PCA_2D(pca_data:list, cluster_labels:list):
     arr_x = [x[0] for x in pca_data]
     arr_y = [x[1] for x in pca_data]
     import matplotlib.pyplot as plt
-    plt.scatter(arr_x, arr_y, c=cluster_labels)
+    plt.scatter(arr_x, arr_y, c=cluster_labels, linewidths=0.01)
     plt.show()
 # --------------------------------------------------
 

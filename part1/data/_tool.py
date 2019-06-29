@@ -6,7 +6,11 @@ def rand_filelines(srcfilename, dstfilename, linecount):
     with open(srcfilename, 'r') as f:
         lines = f.readlines()
         wlines.append(lines[0])
-        selidx = random.sample(range(1, len(lines)), linecount)
+        if linecount > 0:
+                selidx = random.sample(range(1, len(lines)), linecount)
+        else:
+                selidx = list(range(1, len(lines)))
+                random.shuffle(selidx)
         for idx in selidx:
             wlines.append(lines[idx])
     with open(dstfilename, 'w') as f:

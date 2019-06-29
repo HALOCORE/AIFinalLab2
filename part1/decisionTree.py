@@ -2,7 +2,7 @@ import math
 from util import evaluate
 from util import getdata
 from util import gzwrite
-
+import random
 
 def count_dict_max(count_dict:dict):
     """找出最大值
@@ -131,13 +131,22 @@ class DecisionTreeNode:
             else:
                 return subnode[0]
         else:
-            return self.class_defaults
+            return self.class_default
 
     def accept_treevisitor(self, visitor):
-        for key in self.tree_dict:
+        # 对树进行剪枝
+        have_expand = False
+        # 随机访问子节点的顺序
+        keylist = list(self.tree_dict.keys())
+        random.shuffle(keylist)
+        for key in keylist:
             subnode = self.tree_dict[key]
             if isinstance(subnode, self.__class__):
-                subnode.accept_treevisitor(visitor)
+                if have_expand is False:
+                    have_expand = True
+                    subnode.accept_treevisitor(visitor)
+                else:
+                    visitor.tree_visit(subnode, stoplevel=True)
             else:
                 visitor.tree_visit(subnode)
         visitor.tree_visit(self)
@@ -147,16 +156,37 @@ class DecisionTreeGZWriter(gzwrite.GzDigraphWriter):
     def __init__(self):
         super().__init__("decisionTree")
     
-    def tree_visit(self, node):
+    def tree_visit(self, node, stoplevel=False):
         node_id = id(node)
         if isinstance(node, DecisionTreeNode):
-            self.set_node(node_id, label="F%d" % node.feature_idx)
-            for key in node.tree_dict:
-                subnode = node.tree_dict[key]
-                subnode_id = id(subnode)
-                self.add_edge(node_id, subnode_id)
+            self.set_node(node_id, shape='box', label="特征%d\n默认:%s" % (node.feature_idx, node.class_default))
+            if stoplevel is False:
+                for key in node.tree_dict:
+                    subnode = node.tree_dict[key]
+                    subnode_id = id(subnode)
+                    self.add_edge(node_id, subnode_id, label=chr(key))
+            else: # 截停点
+                sub_id = node_id + 1
+                self.set_node(sub_id, color='gray', label="......", shape='plaintext')
+                self.add_edge(node_id, sub_id, color='gray')
         else:
-            self.set_node(node_id, color="green",label="%s\n%s" % (node[0][:2], node[1]))
+            self.set_node(node_id, shape='box', color="orange", label="类别:%s\n样本数%s" % (node[0], node[1]))
+    
+    # def tree_visit(self, node, stoplevel=False):
+    #     node_id = id(node)
+    #     if isinstance(node, DecisionTreeNode):
+    #         self.set_node(node_id, label="F%d\n(%s)" % (node.feature_idx, node.class_default))
+    #         if stoplevel is False:
+    #             for key in node.tree_dict:
+    #                 subnode = node.tree_dict[key]
+    #                 subnode_id = id(subnode)
+    #                 self.add_edge(node_id, subnode_id, label=chr(key))
+    #         else: # 截停点
+    #             sub_id = node_id + 1
+    #             self.set_node(sub_id, color='gray', label="...")
+    #             self.add_edge(node_id, sub_id, color='gray')
+    #     else:
+    #         self.set_node(node_id, color="green",label="%s\n%s" % (node[0], node[1]))
 
 
 def split_dataset_by_a_feature(dataset:list, datalabel:list, feature_idx:int):
@@ -197,12 +227,13 @@ def createTree_core(dataset:list, datalabel:list, filter_size:int):
         return current_root
     else:
         # 叶节点了
-        # assert 检查是否还有不同元素
-        assert(filter_size > 0 or len(set(datalabel)) == 1)
+        # assert 检查 是否还有不同元素（如果filter_size>0)
+        if not (filter_size > 0 or len(set(datalabel)) == 1):
+            print(set(datalabel), "filter_size:", filter_size)
+            assert(False)
         leaf_label = datalabel[0]
         if filter_size > 0:
-            cdict = get_count_dict(datalabel)
-            leaf_label, _ = count_dict_max(cdict)
+            leaf_label = class_default
         return (leaf_label, len(datalabel))
 
 
@@ -219,7 +250,7 @@ def createTree(trainset:list, trainlabel:list, testset:list, testlabel:list, fil
         predict_label.append(des_tree.predict(elem))
     # evaluate
     classes = list(set(trainlabel))
-    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label)
+    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label, verbose=True)
     return predict_label, Accuracy, MacroF1, MicroF1
 
 
@@ -259,7 +290,7 @@ def test_entropy():
 def main():
     trainset, trainlabel = getdata.get_traindata()
     testset, testlabel = getdata.get_testdata()
-    ypred, Accuracy, MacroF1, MicroF1 = createTree(trainset, trainlabel, testset, testlabel, filter_size=0)
+    ypred, Accuracy, MacroF1, MicroF1 = createTree(trainset, trainlabel, testset, testlabel, filter_size=0, exportfile=True)
     print(Accuracy, MacroF1, MicroF1)
 
 do_test = False

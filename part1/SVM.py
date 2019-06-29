@@ -1,7 +1,6 @@
 import math
 import numpy as np
 
-
 import scipy.sparse
 from scipy.sparse import csc_matrix, coo_matrix
 
@@ -27,7 +26,8 @@ def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10)
         tr_trainlabel = [myfilter(x) for x in trainlabel]
         print("# start building SVM for %s..." % focus_class)
         svm_dict[focus_class] = softSVM(trainset, tr_trainlabel, sigma, marginC)
-    
+        print(svm_dict[focus_class])
+
     # do predict
     print("# start predict. %d testcases total ..." % len(testset))
     predict_label = list()
@@ -63,6 +63,12 @@ def svm_kernel(x1, x2, sigma):
         inner_product = math.exp(-vecmod2 * invsq_sig)
         return inner_product
 
+def svm_g_kernel_generator(sigma):
+    assert(sigma > 0)
+    invsq_sig = 1.0 / (sigma * sigma)
+    def svm_g_kernel(x1mx2):
+        return np.math.exp(np.dot(x1mx2) * invsq_sig)
+    return svm_g_kernel
 
 class SVM():
     def __init__(self, sigma:float, describe="not available"):
@@ -98,23 +104,44 @@ class SVM():
         cst_sum = sum([self.alphas[i] * self.ys[i] for i in range(len(self.alphas))])
         head = "<SVM  sigma:%s, marginC:%s, CST-SUM: ** %4f ** >\n" % (self.sigma, "unknown", cst_sum)
         vecs = ["    alpha:%s, label:%s, vec:%s" % (self.alphas[i], self.ys[i], self.sp_vectors[i]) for i in range(len(self.alphas))]
-        
+        vecsize = len(vecs)
+        if vecsize > 5:
+            vecs = vecs[:5]
+            vecs.append('    ... (%d vectors hidden.)' % (vecsize - 5))
         tail = "\n</SVM vec-num:%d >" % len(self.alphas)
         return head + "\n".join(vecs) + tail
 
 
+MATRIX_GEN_OPTIMIZE = False
+
 def solve_sparse(trainset, trainlabel, sigma, marginC, verbose=False):
+    print("# solve_sparse. OPTIMIZE = %s" % MATRIX_GEN_OPTIMIZE)
     train_size = len(trainset)
-    K = [[svm_kernel(trainset[i1], trainset[i2], sigma)*trainlabel[i1]*trainlabel[i2]
-            for i1 in range(train_size)]
-         for i2 in range(train_size)]
-    for i in range(train_size):
-        K[i][i] += 1e-5
-    P = csc_matrix(K)
+    if MATRIX_GEN_OPTIMIZE:
+        np_trainset1 = np.asarray(trainset)
+        np_trainset2 = np.asarray(trainset)
+        if sigma == 0:
+            K = np.matmul(np_trainset1, np_trainset2.T)
+        else:
+            vecminus = np_trainset1[:,None] - np_trainset2[None,:]
+            raise NotImplementedError
+    else:
+        K = [[svm_kernel(x1, x2, sigma) for x1 in trainset] for x2 in trainset]
+    
+    # no need to optimize this.
+    nd_K = np.asarray(K, dtype=np.float)
+
+    Y = np.asarray([trainlabel], dtype=np.float)
+    YY = np.matmul(Y.T, Y)
+    P = K * YY
+    if sigma > 0:
+        P = P + np.diag([1e-6]*len(trainset))
+    
+    P = csc_matrix(P)
 
     elem_count = len(trainset)
     q = - np.ones(elem_count)
-    
+
     G1 = csc_matrix(scipy.sparse.eye(elem_count))
     G2 = csc_matrix(-scipy.sparse.eye(elem_count))
     G = scipy.sparse.vstack((G1, G2))
@@ -154,7 +181,7 @@ def solve_dense(trainset, trainlabel, sigma, marginC, verbose=False):
     Y = np.asarray([trainlabel], dtype=np.float)
     YY = np.matmul(Y.T, Y)
     P = K * YY
-    P = P + np.diag([1e-5]*len(trainset))
+    P = P + np.diag([1e-6]*len(trainset))
 
     elem_count = len(trainset)
     q = - np.ones(elem_count)
@@ -189,7 +216,7 @@ def solve_dense(trainset, trainlabel, sigma, marginC, verbose=False):
 
 def softSVM(trainset, trainlabel, sigma, marginC, verbose=False):
     """C为soft margin控制参数"""
-    alpha_ans = solve_sparse(trainset, trainlabel, sigma, marginC, verbose)
+    alpha_ans = solve_dense(trainset, trainlabel, sigma, marginC, verbose)
     
     if verbose:
         print("-----------------------")
@@ -197,8 +224,10 @@ def softSVM(trainset, trainlabel, sigma, marginC, verbose=False):
 
     newSVM = SVM(sigma)
     ans_len = len(alpha_ans)
-    threshold = 6e-5
+    ori_max_alpha = max(alpha_ans)
+    threshold = ori_max_alpha * 0.005
 
+    # 找最好 alpha
     max_alpha = 0
     max_alpha_idx = None
     for i in range(ans_len):
@@ -207,10 +236,18 @@ def softSVM(trainset, trainlabel, sigma, marginC, verbose=False):
             if alpha_ans[i] > max_alpha:
                 max_alpha = alpha_ans[i]
                 max_alpha_idx = i
-
-    b = trainlabel[max_alpha_idx] - newSVM.w_multi(trainset[max_alpha_idx])
-    newSVM.set_b(b)
     
+    # 求b列表
+    b_list = list()
+    for i in range(ans_len):
+        if alpha_ans[i] > threshold:
+            b_list.append(trainlabel[i] - newSVM.w_multi(trainset[i]))
+    
+    # 求b平均
+    best_b = trainlabel[max_alpha_idx] - newSVM.w_multi(trainset[max_alpha_idx])
+    aver_b = sum(b_list) / len(b_list)
+    print("creating softSVM. best_b:", best_b, "  aver_b:", aver_b)# "  b_list:%s" % b_list)
+    newSVM.set_b(best_b)
     return newSVM
 
 
@@ -225,17 +262,19 @@ def softSVM(trainset, trainlabel, sigma, marginC, verbose=False):
 
 
 def test_svm():
-    labeler = lambda x,y: 1*x + 3*y + 6
+    # labeler = lambda x,y: 3*x - y - 1
+    labeler = lambda x,y: 2*x + 3*y - 7
     trainset = list()
     trainlabel = list()
     testset = list()
     testlabel = list()
 
-    scale = 100
-    factor = 1/10
-    thres = 0
+    scale = 100 
+    factor = 1/10 
+    thres = 2 # 间隔
+    fillgap = False # 是否填充间隙
     import random
-    for _ in range(300):
+    for _ in range(500):
         x = random.randint(-scale, scale) * factor
         y = random.randint(-scale, scale) * factor
         
@@ -246,12 +285,13 @@ def test_svm():
             trainset.append((x, y))
             trainlabel.append(-1)
         else:
-            trainset.append((x, y))
-            des = random.randint(0, 1)
-            if des == 1:
-                trainlabel.append(1)
-            else:
-                trainlabel.append(-1)
+            if fillgap:
+                trainset.append((x, y))
+                des = random.randint(0, 1)
+                if des == 1:
+                    trainlabel.append(1)
+                else:
+                    trainlabel.append(-1)
 
     
     for _ in range(100):
@@ -267,7 +307,7 @@ def test_svm():
     # trainlabel = [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1]
 
 
-    mySVM = softSVM(trainset, trainlabel, 2, 20)
+    mySVM = softSVM(trainset, trainlabel, 1, 8)
 
     true_count = 0
     false_count = 0
@@ -282,9 +322,22 @@ def test_svm():
     print("\nTrue:", true_count, " False:", false_count)
 
     import matplotlib.pyplot as plt
+    support_vecs = mySVM.sp_vectors
+
+    # 数据点
     tsetx = [x[0] for x in trainset]
     tsety = [x[1] for x in trainset]
     plt.scatter(tsetx, tsety, c=trainlabel)
+    
+    # 支持向量
+    spx = [x[0] for x in support_vecs]
+    spy = [x[1] for x in support_vecs]
+    max_alpha = max(mySVM.alphas)
+    sizes = [300*x/max_alpha for x in mySVM.alphas]
+    plt.scatter(spx, spy, color='', marker='o', alpha=0.8,s=sizes, edgecolors='g')
+    # plt.scatter(spx, spy, color='', marker='o', edgecolors='g',s=300)
+
+    #显示
     plt.show()
 
 
@@ -297,7 +350,7 @@ def main():
     print(Accuracy, MacroF1, MicroF1)
 
 
-do_test = False
+do_test = True
 if __name__ == "__main__":
     if do_test:
         test_svm()
