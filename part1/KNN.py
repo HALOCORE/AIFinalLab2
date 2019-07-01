@@ -10,8 +10,8 @@ def elem_dist(in_elem1, in_elem2):
     """计算距离"""
     dis = 0
     for x1, x2 in zip(in_elem1, in_elem2):
-        dis += abs(x1 - x2) # (x1-x2)*(x1-x2)
-        # dis += (x1-x2)*(x1-x2)
+        # dis += abs(x1 - x2) # (x1-x2)*(x1-x2)
+        dis += (x1-x2)*(x1-x2)
     return dis
 
 def update_neighbors(center_elem, elem, label, nb_dists: list, nb_num: int, debug=False):
@@ -95,7 +95,7 @@ def knn(trainset:list, trainlabel:list, testset:list, testlabel:list, k:int, ver
 def main():
     trainset, trainlabel = getdata.get_traindata()
     testset, testlabel = getdata.get_testdata()
-    ypred, Accuracy, MacroF1, MicroF1 = knn(trainset, trainlabel, testset, testlabel, 7, verbose=True)
+    ypred, Accuracy, MacroF1, MicroF1 = knn(trainset, trainlabel, testset, testlabel, 5, verbose=True)
     print(Accuracy, MacroF1, MicroF1)
 
 
