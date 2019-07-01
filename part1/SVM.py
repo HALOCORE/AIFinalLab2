@@ -1,4 +1,5 @@
 import math
+import time
 import numpy as np
 
 import scipy.sparse
@@ -15,6 +16,7 @@ def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10)
     # trainset, trainlabel, testset, testlabel 是训练集和测试集
     # sigma=1 是默认的高斯核函数sigma值
     # marginC=10 是默认的软边界参数
+    time_start = time.time()
     assert(len(trainset) == len(trainlabel))
     assert(len(testset) == len(testlabel))
     classes = set(trainlabel)
@@ -44,6 +46,8 @@ def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10)
     
     # evaluate
     Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label)
+    time_end = time.time()
+    print("# multiClassSVM 用时:", time_end - time_start)
     return predict_label, Accuracy, MacroF1, MicroF1
 
 
@@ -115,7 +119,9 @@ class SVM():
 MATRIX_GEN_OPTIMIZE = False
 
 def solve_sparse(trainset, trainlabel, sigma, marginC, verbose=False):
+    time_start = time.time()
     print("# solve_sparse. OPTIMIZE = %s" % MATRIX_GEN_OPTIMIZE)
+    
     train_size = len(trainset)
     if MATRIX_GEN_OPTIMIZE:
         np_trainset1 = np.asarray(trainset)
@@ -166,15 +172,24 @@ def solve_sparse(trainset, trainlabel, sigma, marginC, verbose=False):
         print("A:\n", A)
         print("b:\n", b)
     
+    time_end = time.time()
+    print("    | 用时 %s." % (time_end - time_start))
     print("# start solve... ")
+    time_start = time.time()
+    
     if 'osqp' not in sparse_solvers:
         print("# 不存在稀疏QP求解器。可安装osqp:  pip3 install osqp")
         assert(False)
     alpha_ans = solve_qp(P, q, G, h, A, b, solver='osqp')
+    
+    time_end = time.time()
+    print("    | 用时 %s." % (time_end - time_start))
     return alpha_ans
 
 
 def solve_dense(trainset, trainlabel, sigma, marginC, verbose=False):
+    time_start = time.time()
+    print("# prepare dense... ")
     K = [[svm_kernel(x1, x2, sigma) for x1 in trainset] for x2 in trainset]
     nd_K = np.asarray(K, dtype=np.float)
 
@@ -209,15 +224,28 @@ def solve_dense(trainset, trainlabel, sigma, marginC, verbose=False):
         print("A:\n", A)
         print("b:\n", b)
     
-    print("# start solve... ")
+    time_end = time.time()
+    print("    | 用时:", time_end - time_start)
+    time_start = time.time()
+    print("# solve dense... ")
+
     alpha_ans = solve_qp(P, q, G, h, A, b)
+
+    time_end = time.time()
+    print("    | 用时 %s." % (time_end - time_start))
     return alpha_ans
 
+USE_SPARSE = True
 
 def softSVM(trainset, trainlabel, sigma, marginC, verbose=False):
     """C为soft margin控制参数"""
-    alpha_ans = solve_dense(trainset, trainlabel, sigma, marginC, verbose)
-    
+    alpha_ans = None
+    if USE_SPARSE:
+        alpha_ans = solve_sparse(trainset, trainlabel, sigma, marginC, verbose)
+    else:
+        alpha_ans = solve_dense(trainset, trainlabel, sigma, marginC, verbose)
+    assert(alpha_ans is not None)
+
     if verbose:
         print("-----------------------")
         print("alphas:\n", alpha_ans)

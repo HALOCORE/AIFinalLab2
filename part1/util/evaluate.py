@@ -5,6 +5,8 @@ def evaluate(classes:list, testlabel:list, predictlabel:list, verbose=False):
     pred_classes = set(predictlabel)
     for test_class in test_classes:
         assert(test_class in classes)
+        # if test_class not in classes:
+        #     print("# warning. test_class not in classes.")
     for pred_class in pred_classes:
         assert(pred_class in classes)
     

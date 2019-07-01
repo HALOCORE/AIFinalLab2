@@ -37,8 +37,8 @@ _PCA_info = None
 
 
 def get_traindata():
-    elems, labels = get_data("./data/trainset.csv")
-    #elems, labels = get_data("./data/trainsetsmall.csv")
+    #elems, labels = get_data("./data/trainset.csv")
+    elems, labels = get_data("./data/trainsetsmall.csv")
     if _PCA_enabled:
         global _PCA_info
         trans_elems, _, _, pca_info = PCA(elems, 0.8)
@@ -49,8 +49,8 @@ def get_traindata():
 
 
 def get_testdata():
-    elems, labels = get_data("./data/testset.csv")
-    #elems, labels = get_data("./data/testsetsmall.csv")
+    #elems, labels = get_data("./data/testset.csv")
+    elems, labels = get_data("./data/testsetsmall.csv")
     if _PCA_enabled:
         global _PCA_info
         trans_elems = apply_PCA_transform(elems, _PCA_info)

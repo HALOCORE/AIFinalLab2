@@ -156,26 +156,10 @@ class DecisionTreeGZWriter(gzwrite.GzDigraphWriter):
     def __init__(self):
         super().__init__("decisionTree")
     
-    def tree_visit(self, node, stoplevel=False):
-        node_id = id(node)
-        if isinstance(node, DecisionTreeNode):
-            self.set_node(node_id, shape='box', label="特征%d\n默认:%s" % (node.feature_idx, node.class_default))
-            if stoplevel is False:
-                for key in node.tree_dict:
-                    subnode = node.tree_dict[key]
-                    subnode_id = id(subnode)
-                    self.add_edge(node_id, subnode_id, label=chr(key))
-            else: # 截停点
-                sub_id = node_id + 1
-                self.set_node(sub_id, color='gray', label="......", shape='plaintext')
-                self.add_edge(node_id, sub_id, color='gray')
-        else:
-            self.set_node(node_id, shape='box', color="orange", label="类别:%s\n样本数%s" % (node[0], node[1]))
-    
     # def tree_visit(self, node, stoplevel=False):
     #     node_id = id(node)
     #     if isinstance(node, DecisionTreeNode):
-    #         self.set_node(node_id, label="F%d\n(%s)" % (node.feature_idx, node.class_default))
+    #         self.set_node(node_id, shape='box', label="特征%d\n默认:%s" % (node.feature_idx, node.class_default))
     #         if stoplevel is False:
     #             for key in node.tree_dict:
     #                 subnode = node.tree_dict[key]
@@ -183,10 +167,26 @@ class DecisionTreeGZWriter(gzwrite.GzDigraphWriter):
     #                 self.add_edge(node_id, subnode_id, label=chr(key))
     #         else: # 截停点
     #             sub_id = node_id + 1
-    #             self.set_node(sub_id, color='gray', label="...")
+    #             self.set_node(sub_id, color='gray', label="......", shape='plaintext')
     #             self.add_edge(node_id, sub_id, color='gray')
     #     else:
-    #         self.set_node(node_id, color="green",label="%s\n%s" % (node[0], node[1]))
+    #         self.set_node(node_id, shape='box', color="orange", label="类别:%s\n样本数%s" % (node[0], node[1]))
+    
+    def tree_visit(self, node, stoplevel=False):
+        node_id = id(node)
+        if isinstance(node, DecisionTreeNode):
+            self.set_node(node_id, label="F%d\n(%s)" % (node.feature_idx, node.class_default))
+            if stoplevel is False:
+                for key in node.tree_dict:
+                    subnode = node.tree_dict[key]
+                    subnode_id = id(subnode)
+                    self.add_edge(node_id, subnode_id, label=chr(key))
+            else: # 截停点
+                sub_id = node_id + 1
+                self.set_node(sub_id, color='gray', label="...")
+                self.add_edge(node_id, sub_id, color='gray')
+        else:
+            self.set_node(node_id, color="green",label="%s\n%s" % (node[0], node[1]))
 
 
 def split_dataset_by_a_feature(dataset:list, datalabel:list, feature_idx:int):
