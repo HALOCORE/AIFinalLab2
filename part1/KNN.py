@@ -74,7 +74,7 @@ def knn_core(center_elem, trainset:list, trainlabel:list, nb_num:int, debug=Fals
 
 
 
-def knn(trainset:list, trainlabel:list, testset:list, testlabel:list, k:int):
+def knn(trainset:list, trainlabel:list, testset:list, testlabel:list, k:int, verbose=False):
     print("# knn. trainsize:%d, testsize:%d." % (len(trainset), len(testset)))
     classes = list(set(trainlabel))
     predict_label = list()
@@ -85,7 +85,7 @@ def knn(trainset:list, trainlabel:list, testset:list, testlabel:list, k:int):
             print_progress(elem_count, len(testlabel))
         label = knn_core(test_elem, trainset, trainlabel, k)
         predict_label.append(label)
-    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label, verbose=False)
+    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label, verbose=verbose)
     return predict_label, Accuracy, MacroF1, MicroF1
 
 
@@ -95,7 +95,7 @@ def knn(trainset:list, trainlabel:list, testset:list, testlabel:list, k:int):
 def main():
     trainset, trainlabel = getdata.get_traindata()
     testset, testlabel = getdata.get_testdata()
-    ypred, Accuracy, MacroF1, MicroF1 = knn(trainset, trainlabel, testset, testlabel, 5)
+    ypred, Accuracy, MacroF1, MicroF1 = knn(trainset, trainlabel, testset, testlabel, 7, verbose=True)
     print(Accuracy, MacroF1, MicroF1)
 
 

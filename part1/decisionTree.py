@@ -237,7 +237,7 @@ def createTree_core(dataset:list, datalabel:list, filter_size:int):
         return (leaf_label, len(datalabel))
 
 
-def createTree(trainset:list, trainlabel:list, testset:list, testlabel:list, filter_size=0, exportfile=False):
+def createTree(trainset:list, trainlabel:list, testset:list, testlabel:list, filter_size=0, verbose=False, exportfile=False):
     print("# createDecisionTree. trainsize:%d, testsize:%d." % (len(trainset), len(testset)))
     assert(len(trainset) == len(trainlabel))
     des_tree = createTree_core(trainset, trainlabel, filter_size)
@@ -250,7 +250,7 @@ def createTree(trainset:list, trainlabel:list, testset:list, testlabel:list, fil
         predict_label.append(des_tree.predict(elem))
     # evaluate
     classes = list(set(trainlabel))
-    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label, verbose=True)
+    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label, verbose=verbose)
     return predict_label, Accuracy, MacroF1, MicroF1
 
 
@@ -290,7 +290,7 @@ def test_entropy():
 def main():
     trainset, trainlabel = getdata.get_traindata()
     testset, testlabel = getdata.get_testdata()
-    ypred, Accuracy, MacroF1, MicroF1 = createTree(trainset, trainlabel, testset, testlabel, filter_size=0, exportfile=True)
+    ypred, Accuracy, MacroF1, MicroF1 = createTree(trainset, trainlabel, testset, testlabel, filter_size=0, verbose=True, exportfile=True)
     print(Accuracy, MacroF1, MicroF1)
 
 do_test = False
