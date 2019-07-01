@@ -107,8 +107,10 @@ def main():
     # results = crossValidationParams(svm_generator, [(0,10),(1,10),(2,10)], trainset, trainlabel, 5)
     
     aver_dis = average_distance(trainset)
+    averdism1 = aver_dis / 10
     print("# trainset的平均距离: ", aver_dis)
-    results = crossValidationParams(svm_generator, [(aver_dis,20),(aver_dis,1000),], trainset, trainlabel, 5, debug_mode=True)
+    
+    results = crossValidationParams(svm_generator, [(averdism1,10),(averdism1,20),(averdism1,1000),(aver_dis,10),(aver_dis,20),(aver_dis,1000),], trainset, trainlabel, 5, debug_mode=False)
     print(results)
     
     print_mdtable_head(['<待填写>'] + ['Fold %s' % idx for idx in list(range(5))] + ['平均 MicroF1'])
