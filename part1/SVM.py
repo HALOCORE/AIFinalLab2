@@ -14,7 +14,7 @@ from util import getdata
 from util import evaluate
 
 
-def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10):
+def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10, verbose=False):
     # trainset, trainlabel, testset, testlabel 是训练集和测试集
     # sigma=1 是默认的高斯核函数sigma值
     # marginC=10 是默认的软边界参数
@@ -35,6 +35,7 @@ def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10)
     # do predict
     print("# start predict. %d testcases total ..." % len(testset))
     predict_label = list()
+    predict_counter = 0
     for elem in testset:
         best_class = None
         best_score = -100000 # magic
@@ -44,10 +45,13 @@ def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10)
                 best_score = score
                 best_class = class_key
         assert(best_class != None)
+        predict_counter += 1
+        if predict_counter % 100 == 0:
+            print("# predicting: ", len(predict_label))
         predict_label.append(best_class)
     
     # evaluate
-    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label)
+    Accuracy, MacroF1, MicroF1 = evaluate.evaluate(classes, testlabel, predict_label, verbose=verbose)
     time_end = time.time()
     print("# multiClassSVM 用时:", time_end - time_start)
     return predict_label, Accuracy, MacroF1, MicroF1
@@ -389,11 +393,14 @@ def main():
     print("# SVM.")
     trainset, trainlabel = getdata.get_traindata()
     testset, testlabel = getdata.get_testdata()
-    ypred, Accuracy, MacroF1, MicroF1 = multiClassSVM(trainset, trainlabel, testset, testlabel)
+    ypred, Accuracy, MacroF1, MicroF1 = multiClassSVM(
+        trainset, trainlabel, testset, testlabel, 
+        sigma=1.3, marginC=10, verbose=True)
+
     print(Accuracy, MacroF1, MicroF1)
 
 
-do_test = True
+do_test = False
 if __name__ == "__main__":
     if do_test:
         test_svm()

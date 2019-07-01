@@ -1,5 +1,7 @@
 
 def evaluate(classes:list, testlabel:list, predictlabel:list, verbose=False):
+    if verbose:
+        print("# evaluate (verbose output):")
     assert(len(testlabel) == len(predictlabel))
     test_classes = set(testlabel)
     pred_classes = set(predictlabel)
@@ -42,8 +44,7 @@ def evaluate(classes:list, testlabel:list, predictlabel:list, verbose=False):
         for label in trueneg_count:
             if label != predictlabel[i] and label != testlabel[i]:
                 trueneg_count[label] += 1
-    if verbose:
-        print("# evaluate:")
+    
     MacroF1 = 0
     
     MicroTP = 0

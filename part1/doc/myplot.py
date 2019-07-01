@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 
 
-sel = 'DES'
+sel = 'SVM'
 
 if sel =='KNN':
     xs = [3,5,7,9,11]
@@ -30,4 +30,14 @@ if sel == 'DES':
     plt.show()
 
 if sel == 'SVM':
-    xs1 = []
+    xs = [0, 0.4526, 0.9052, 1, 1.6, 2, 4.5260]
+    ys = [
+        0.023473, 0.171389, 0.515421, 0.522924, 0.523905, 0.456508, 0.221667
+    ]
+    plt.plot(xs, ys)
+    plt.title('Micro F1 vs σ @SVM')
+    plt.xlabel(u'sigma(σ)')
+    plt.ylabel(u'Micro F1')
+    plt.ylim(ymin=0, ymax=1)
+    # plt.legend()
+    plt.show()
