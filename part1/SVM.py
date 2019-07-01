@@ -2,6 +2,8 @@ import math
 import time
 import numpy as np
 
+from typing import List
+
 import scipy.sparse
 from scipy.sparse import csc_matrix, coo_matrix
 
@@ -51,28 +53,28 @@ def multiClassSVM(trainset, trainlabel, testset, testlabel, sigma=1, marginC=10)
     return predict_label, Accuracy, MacroF1, MicroF1
 
 
-def svm_kernel(x1, x2, sigma):
+def svm_kernel(x1:List[float], x2:List[float], sigma:float):
     if sigma == 0:
-        # 线性核函数
-        inner_product = 0
-        for s1, s2 in zip(x1, x2):
-            inner_product += s1 * s2
-        return inner_product
+        return svm_linear_kernel(x1, x2)
     else:
-        # 高斯核函数
-        invsq_sig = 1.0 / (sigma * sigma)
-        vecmod2 = 0
-        for s1, s2 in zip(x1, x2):
-            vecmod2 += (s2 - s1)*(s2 - s1)
-        inner_product = math.exp(-vecmod2 * invsq_sig)
-        return inner_product
+        return svm_gauss_kernel(x1, x2, sigma)
 
-def svm_g_kernel_generator(sigma):
-    assert(sigma > 0)
+def svm_linear_kernel(x1:List[float], x2:List[float]):
+    # 线性核函数
+    inner_product = 0
+    for s1, s2 in zip(x1, x2):
+        inner_product += s1 * s2
+    return inner_product
+
+def svm_gauss_kernel(x1:List[float], x2:List[float], sigma:float):
+    # 高斯核函数
     invsq_sig = 1.0 / (sigma * sigma)
-    def svm_g_kernel(x1mx2):
-        return np.math.exp(np.dot(x1mx2) * invsq_sig)
-    return svm_g_kernel
+    vecmod2 = 0
+    for s1, s2 in zip(x1, x2):
+        vecmod2 += (s2 - s1)*(s2 - s1)
+    inner_product = math.exp(-vecmod2 * invsq_sig)
+    return inner_product
+
 
 class SVM():
     def __init__(self, sigma:float, describe="not available"):
@@ -118,7 +120,7 @@ class SVM():
 
 MATRIX_GEN_OPTIMIZE = False
 
-def solve_sparse(trainset, trainlabel, sigma, marginC, verbose=False):
+def solve_sparse(trainset:List[List[float]], trainlabel:list, sigma:float, marginC:float, verbose=False):
     time_start = time.time()
     print("# solve_sparse. OPTIMIZE = %s" % MATRIX_GEN_OPTIMIZE)
     
@@ -132,8 +134,11 @@ def solve_sparse(trainset, trainlabel, sigma, marginC, verbose=False):
             vecminus = np_trainset1[:,None] - np_trainset2[None,:]
             raise NotImplementedError
     else:
-        K = [[svm_kernel(x1, x2, sigma) for x1 in trainset] for x2 in trainset]
-    
+        if sigma > 0:
+            K = [[svm_gauss_kernel(x1, x2, sigma) for x1 in trainset] for x2 in trainset]
+        else:
+            K = [[svm_linear_kernel(x1, x2) for x1 in trainset] for x2 in trainset]
+
     # no need to optimize this.
     nd_K = np.asarray(K, dtype=np.float)
 
@@ -187,7 +192,7 @@ def solve_sparse(trainset, trainlabel, sigma, marginC, verbose=False):
     return alpha_ans
 
 
-def solve_dense(trainset, trainlabel, sigma, marginC, verbose=False):
+def solve_dense(trainset:List[List[float]], trainlabel:list, sigma:float, marginC:float, verbose=False):
     time_start = time.time()
     print("# prepare dense... ")
     K = [[svm_kernel(x1, x2, sigma) for x1 in trainset] for x2 in trainset]
@@ -236,8 +241,8 @@ def solve_dense(trainset, trainlabel, sigma, marginC, verbose=False):
     return alpha_ans
 
 USE_SPARSE = True
-
-def softSVM(trainset, trainlabel, sigma, marginC, verbose=False):
+AVER_B_SIZE = 10
+def softSVM(trainset:List[List[float]], trainlabel:list, sigma:float, marginC:float, verbose=False):
     """C为soft margin控制参数"""
     alpha_ans = None
     if USE_SPARSE:
@@ -268,13 +273,13 @@ def softSVM(trainset, trainlabel, sigma, marginC, verbose=False):
     # 求b列表
     b_list = list()
     for i in range(ans_len):
-        if alpha_ans[i] > threshold:
+        if alpha_ans[i] > threshold and len(b_list) < AVER_B_SIZE:
             b_list.append(trainlabel[i] - newSVM.w_multi(trainset[i]))
     
     # 求b平均
     best_b = trainlabel[max_alpha_idx] - newSVM.w_multi(trainset[max_alpha_idx])
     aver_b = sum(b_list) / len(b_list)
-    print("creating softSVM. best_b:", best_b, "  aver_b:", aver_b)# "  b_list:%s" % b_list)
+    print("creating softSVM. best_b:", best_b, "  aver_b(%d):" % (AVER_B_SIZE), aver_b)# "  b_list:%s" % b_list)
     newSVM.set_b(best_b)
     return newSVM
 
