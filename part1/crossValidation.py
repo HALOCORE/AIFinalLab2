@@ -102,7 +102,7 @@ def main():
     def svm_generator(params):
         return lambda trs, trl, tss, tsl: multiClassSVM(trs, trl, tss, tsl, sigma=params[0], marginC=params[1])
     # results = crossValidationParams(knn_generator, [(3,),(5,),(7,),(9,),(11,)], trainset, trainlabel, 5)
-    # results = crossValidationParams(decTree_generator, [(0,),(3,),(5,),(10,),(20,)], trainset, trainlabel, 5, debug_mode=True)
+    # results = crossValidationParams(decTree_generator, [(0,),(3,),(5,),(10,),(20,)], trainset, trainlabel, 5, debug_mode=False)
     # results = crossValidationParams(svm_generator, [(0,10),(0,20),(0,1000),(1,10),(1,20),(1,1000)], trainset, trainlabel, 5)
     # results = crossValidationParams(svm_generator, [(0,10),(1,10),(2,10)], trainset, trainlabel, 5)
     
@@ -112,7 +112,7 @@ def main():
     # averdism3 = aver_dis / 1000
     # print("# trainset的平均距离: ", aver_dis)
     
-    results = crossValidationParams(svm_generator, [(1.6,10)], trainset, trainlabel, 5, debug_mode=False)
+    results = crossValidationParams(svm_generator, [(1.0,10), (1.2,10), (1.4,10)], trainset, trainlabel, 5, debug_mode=False)
     print(results)
     
     print_mdtable_head(['<待填写>'] + ['Fold %s' % idx for idx in list(range(5))] + ['平均 MicroF1'])
