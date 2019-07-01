@@ -284,6 +284,15 @@ def softSVM(trainset:List[List[float]], trainlabel:list, sigma:float, marginC:fl
     return newSVM
 
 
+def average_distance(trainset:List[List[float]]):
+    dis = 0
+    for e1 in trainset:
+        for e2 in trainset:
+            edsq = sum([(x1 - x2)*(x1 - x2) for x1, x2 in zip(e1, e2)])
+            dis += edsq
+    return dis / (len(trainset) * len(trainset))
+
+
 # ----------------------------------------- 测试 -----------------------------------------
 # minimize
 #     (1/2) \* x.T \* P \* x + q.T \* x
@@ -339,8 +348,9 @@ def test_svm():
     # trainset = [(1,1),(2,4), (1,1.5), (1,2), (2,3), (3,4), (5,1), (7,2),(7, 5), (5,3), (7,3),(4,3)]
     # trainlabel = [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1]
 
-
-    mySVM = softSVM(trainset, trainlabel, 1, 8)
+    aver_dis = average_distance(trainset)
+    print("# 平均距离:", aver_dis)
+    mySVM = softSVM(trainset, trainlabel, aver_dis, 8)
 
     true_count = 0
     false_count = 0
