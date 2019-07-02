@@ -25,7 +25,7 @@ def cluster_purity(cluster_labels:list, real_labels:list):
             inter_size = len(inter_set)
             if inter_size > max_intersize:
                 max_intersize = inter_size
-        assert(max_intersize > 0 and max_intersize < len(cluster_set))
+        assert(max_intersize > 0 and max_intersize <= len(cluster_set))
         inter_sum += max_intersize
     
     return inter_sum / len(cluster_labels)

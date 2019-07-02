@@ -106,6 +106,7 @@ def KMeans(k:int, data:list):
             else:
                 assert(not any(center_sums[i]))
     print()
+    assert(len(set(labels)) == k)
     return [x+1 for x in labels]
         
 
@@ -187,7 +188,7 @@ def main():
     real_classes_count = len(set(real_labels))
     
     cluster_labels = KMeans(3, dataset)
-    # cluster_labels = autoKMeans(2, 8, dataset, repeat=128)
+    # cluster_labels = autoKMeans(3, 8, dataset, repeat=128)
 
     # output
     myprint.set_stdout("KMeans.csv")

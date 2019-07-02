@@ -102,21 +102,21 @@ def main():
     def svm_generator(params):
         return lambda trs, trl, tss, tsl: multiClassSVM(trs, trl, tss, tsl, sigma=params[0], marginC=params[1])
     # results = crossValidationParams(knn_generator, [(3,),(5,),(7,),(9,),(11,)], trainset, trainlabel, 5)
-    # results = crossValidationParams(decTree_generator, [(0,),(3,),(5,),(10,),(20,)], trainset, trainlabel, 5, debug_mode=False)
+    results = crossValidationParams(decTree_generator, [(0,),(3,),(5,),(10,),(20,)], trainset, trainlabel, 5, debug_mode=False)
     # results = crossValidationParams(svm_generator, [(0,10),(0,20),(0,1000),(1,10),(1,20),(1,1000)], trainset, trainlabel, 5)
     # results = crossValidationParams(svm_generator, [(0,10),(1,10),(2,10)], trainset, trainlabel, 5)
     
-    aver_dis = average_distance(trainset)
-    print("# trainset的平均距离: ", aver_dis)
+    # aver_dis = average_distance(trainset)
+    # print("# trainset的平均距离: ", aver_dis)
     
-    results = crossValidationParams(svm_generator, [
-        (0.02 * aver_dis, 10), 
-        (0.025 * aver_dis, 10), 
-        (0.03 * aver_dis, 10), 
-        (0.04 * aver_dis, 10), 
-        (0.05 * aver_dis, 10)], trainset, trainlabel, 5, debug_mode=False)
+    # results = crossValidationParams(svm_generator, [
+    #     (0.02 * aver_dis, 10), 
+    #     (0.025 * aver_dis, 10), 
+    #     (0.03 * aver_dis, 10), 
+    #     (0.04 * aver_dis, 10), 
+    #     (0.05 * aver_dis, 10)], trainset, trainlabel, 5, debug_mode=False)
+    
     print(results)
-    
     print_mdtable_head(['<待填写>'] + ['Fold %s' % idx for idx in list(range(5))] + ['平均 MicroF1'])
     print_mdtable_body(results['mat'], rownames=results['params'], append_gens=[lambda x:sum(x)/len(x)], item_format='%.6f')
 

@@ -55,6 +55,7 @@ def clus_dis_mindis(clus1_ids:list, clus2_ids:list, elem_dis, elem_mapper):
                 min_dis = current_dis
     return min_dis
 
+from util.evaluate import calc_SSE
 
 def HC(data, n_clusters, cluster_ratio=0.95):
     """增加了第三个默认参数，用于防止离群点干扰。
@@ -116,8 +117,11 @@ def HC(data, n_clusters, cluster_ratio=0.95):
     # 第一阶段：合并簇，使得最大的n个簇总元素个数超过指定比例
     biggest_total = 0
     biggest_ratio = 0
-    # while(len(cluster_dict) > n_clusters):    # 放弃簇个数控制
-    while biggest_ratio < cluster_ratio:        # 改用最大n个占比控制
+    
+    # 本阶段的图表统计信息
+    sse_list = list()
+
+    while len(cluster_dict) > n_clusters and biggest_ratio < cluster_ratio: # 引入最大n个占比控制
 
         # 添加步骤：统计各个cluster含有的元素个数，排序
         cluster_size_list = sorted([(len(cluster_dict[k]), k) for k in cluster_dict], reverse=True)
@@ -126,36 +130,44 @@ def HC(data, n_clusters, cluster_ratio=0.95):
         biggest_clusters = cluster_size_list[:n_clusters]
         biggest_total = sum([tp[0] for tp in biggest_clusters])
         biggest_ratio = biggest_total / datalen
-    
+
+        # 计算SSE
+        sse = calc_SSE(data, idx_list)
+        sse_list.append(sse)
+
         # 添加步骤：调试
         print("ratio: %5f" % biggest_ratio, "  target_ratio: %5f" % cluster_ratio, 
-            "  cluster-count: %4d  |  " % len(cluster_dict),
+            "  cluster-count: %4d  " % len(cluster_dict), "  SSE: %5f |  " % sse,
             biggest_clusters)
 
         cid1, cid2, _ =  get_nearest_cluster_idx()
         combine_cluster(cid1, cid2)
 
     # 第二阶段：就近指派离群簇 （不再保证数据结构一致性。直接修改idx_list元素归属簇列表）
-    cluster_size_list = sorted([(len(cluster_dict[k]), k) for k in cluster_dict], reverse=True)
-    big_clusters = [pr[1] for pr in cluster_size_list[:n_clusters]]
-    small_clusters = [pr[1] for pr in cluster_size_list[n_clusters:]]
-    for small_idx in small_clusters:
-        # 对每个小簇
-        best_idx = big_clusters[0]
-        best_distance = calc_distance(small_idx, best_idx)
-        for cur_idx in big_clusters:
-            # 找出距离最近的大簇
-            if cur_idx != best_idx:
-                cur_distance = calc_distance(small_idx, cur_idx)
-                if cur_distance < best_distance:
-                    best_distance = cur_distance
-                    best_idx = cur_idx
-        # 修改idx_list
-        small_elem_idxs = cluster_dict[small_idx]
-        for elem_idx in small_elem_idxs:
-            idx_list[elem_idx] = best_idx
+    if len(cluster_dict) > n_clusters:
+        print("# 就近指派离群点.")
+        cluster_size_list = sorted([(len(cluster_dict[k]), k) for k in cluster_dict], reverse=True)
+        big_clusters = [pr[1] for pr in cluster_size_list[:n_clusters]]
+        small_clusters = [pr[1] for pr in cluster_size_list[n_clusters:]]
+        for small_idx in small_clusters:
+            # 对每个小簇
+            best_idx = big_clusters[0]
+            best_distance = calc_distance(small_idx, best_idx)
+            for cur_idx in big_clusters:
+                # 找出距离最近的大簇
+                if cur_idx != best_idx:
+                    cur_distance = calc_distance(small_idx, cur_idx)
+                    if cur_distance < best_distance:
+                        best_distance = cur_distance
+                        best_idx = cur_idx
+            # 修改idx_list
+            small_elem_idxs = cluster_dict[small_idx]
+            for elem_idx in small_elem_idxs:
+                idx_list[elem_idx] = best_idx
+    else:
+        print("# 无需处理离群点，簇个数已满足.")
 
-    print("# HC 完成.")
+    print("# HC 完成. SSE历史:", sse_list)
     idxset = set(idx_list)
     assert(len(idxset) == n_clusters)
     st_idx = 1
@@ -178,7 +190,7 @@ def test():
     plt.scatter([x[0] for x in dataset], [x[1] for x in dataset])
     plt.show()
 
-    cluster_labels = HC(dataset, 7)
+    cluster_labels = HC(dataset, 7, cluster_ratio=1.1)
     
     print(cluster_labels)
     plt.scatter([x[0] for x in dataset], [x[1] for x in dataset], c=cluster_labels)
@@ -191,7 +203,8 @@ def main():
     from util import myprint
     dataset, real_labels = getdata.get_HC_cluster_data()
     real_class_count = len(set(real_labels))
-    cluster_labels = HC(dataset, real_class_count)
+    
+    cluster_labels = HC(dataset, real_class_count, cluster_ratio=0.95)
 
     # output
     myprint.set_stdout("HC.csv")
@@ -205,6 +218,22 @@ def main():
     print("# Done.")
 
 
+def analyze_main():
+    from util import getdata
+    from util import evaluate
+    from util import myprint
+    dataset, real_labels = getdata.get_HC_cluster_data()
+    real_class_count = len(set(real_labels))
+    
+    for clu_count in [82]: #231 #57
+        cluster_labels = HC(dataset, clu_count, cluster_ratio=1.1)
+        # evaluate
+        purity, ri = evaluate.evaluate(cluster_labels, real_labels)
+        print("target_cluster_count:", clu_count)
+        print("data-size: %d, class-count: %d" % (len(dataset), real_class_count))
+        print("eval: ", purity, ri)
+    
+
 do_test = False
 
 if __name__ == "__main__":
@@ -214,6 +243,7 @@ if __name__ == "__main__":
     else:
         print("# PC.")
         main()
+        # analyze_main()
 else:
     print(__name__)
     print("# this is imported by other.")
