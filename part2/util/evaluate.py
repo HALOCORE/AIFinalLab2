@@ -71,3 +71,25 @@ def evaluate(cluster_labels:list, real_labels:list, verbose=True):
     ri = cluster_RI(cluster_labels, real_labels)
     print("    ri: %f" % ri)
     return purity, ri
+
+
+def calc_SSE(data:list, cluster:list):
+    # 算出所有的中心
+    elem_len = len(data[0])
+    clusterset = set(cluster)
+    count_dict = {key:0 for key in clusterset}
+    center_dict = {key:[0 for _ in range(elem_len)] for key in clusterset}
+    for elem, idx in zip(data, cluster):
+        count_dict[idx] += 1
+        for i in range(elem_len):
+            center_dict[idx][i] += elem[i]
+    for key in center_dict:
+        for i in range(elem_len):
+            center_dict[key][i] /= count_dict[key]
+    # 求和求出SSE
+    sse = 0
+    for elem, idx in zip(data, cluster):
+        for i in range(elem_len):
+            sse += (elem[i] - center_dict[idx][i])**2
+    return sse
+    

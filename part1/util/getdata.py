@@ -2,8 +2,8 @@
 def transform_elem(elem):
     # return (elem[0]*8 + elem[1], elem[2]*8 + elem[3], elem[4]*8 + elem[5]) 
     # return (elem[0]*elem[1], elem[2]*elem[3], elem[4]*elem[5]) 
-    return (elem[2]-elem[0], elem[3]-elem[1], elem[4]-elem[0], elem[5]-elem[1])
-    #return elem
+    # return (elem[2]-elem[0], elem[3]-elem[1], elem[4]-elem[0], elem[5]-elem[1])
+    return elem
 
 
 def transform_elemlist(elems):

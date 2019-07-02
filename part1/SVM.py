@@ -389,13 +389,13 @@ def test_svm():
 
 
 # ----------------------------------------- 主函数 -----------------------------------------
-def main():
+def main(sigma=1.3, marginC=10):
     print("# SVM.")
     trainset, trainlabel = getdata.get_traindata()
     testset, testlabel = getdata.get_testdata()
     ypred, Accuracy, MacroF1, MicroF1 = multiClassSVM(
         trainset, trainlabel, testset, testlabel, 
-        sigma=1.3, marginC=10, verbose=True)
+        sigma=sigma, marginC=marginC, verbose=True)
 
     print(Accuracy, MacroF1, MicroF1)
 
@@ -405,4 +405,10 @@ if __name__ == "__main__":
     if do_test:
         test_svm()
     else:
-        main()
+        sigma = 1.3
+        import sys
+        if len(sys.argv) >= 2:
+            print("# 使用自定义sigma. ")
+            print(sys.argv)
+            sigma = float(sys.argv[-1])
+        main(sigma=sigma)

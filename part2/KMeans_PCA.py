@@ -13,10 +13,10 @@ def main():
     from util import myprint
     dataset, real_labels = getdata.get_cluster_data()
     real_classes_count = len(set(real_labels))
-    trans_dataset, cluster_labels = KMeans_PCA(real_classes_count, dataset, 0.9)
+    trans_dataset, cluster_labels = KMeans_PCA(3, dataset, 0.9)
     
     # output
-    myprint.set_stdout("KMeans_PCA_result.csv")
+    myprint.set_stdout("KMeans_PCA.csv")
     myprint.print_cluster_data(cluster_labels)
     myprint.reset_stdout()
     

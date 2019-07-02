@@ -47,7 +47,7 @@ def visualize_PCA_2D(pca_data:list, cluster_labels:list):
     arr_x = [x[0] for x in pca_data]
     arr_y = [x[1] for x in pca_data]
     import matplotlib.pyplot as plt
-    plt.scatter(arr_x, arr_y, c=cluster_labels, linewidths=0.01)
+    plt.scatter(arr_x, arr_y, c=cluster_labels, linewidths=0.001)
     plt.show()
 # --------------------------------------------------
 

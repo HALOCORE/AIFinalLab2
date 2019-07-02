@@ -105,9 +105,65 @@ def KMeans(k:int, data:list):
                     centers[i][j] = center_sums[i][j] / center_counts[i]
             else:
                 assert(not any(center_sums[i]))
-    print("\n")
-    return labels
+    print()
+    return [x+1 for x in labels]
         
+
+
+def autoKMeans(kmin:int, kmax:int, data:list, repeat=8):
+    from util.evaluate import calc_SSE
+    print("# autoKMeans. test from %d to %d. repeat=%d." % (kmin, kmax, repeat))
+    k_list = []
+    sse_list = []
+    cluster_list = []
+    
+    for k in range(kmin, kmax + 1):
+        print("# k =", k)
+        aver_sse = 0
+        temp_sses = list()
+        temp_clusters = list()
+        
+        # 求出本k的平均SSE
+        for i in range(repeat):
+            tmp_cluster = KMeans(k, data)
+            my_sse = calc_SSE(data, tmp_cluster)
+            aver_sse += my_sse
+            temp_sses.append(my_sse)
+            temp_clusters.append(tmp_cluster)
+        aver_sse /= repeat
+        
+        # 找出最接近平均SSE的一组
+        diffs = [abs(sse - aver_sse) for sse in temp_sses]
+        idx = diffs.index(min(diffs))
+        cluster = temp_clusters[idx] 
+        
+        # 插入这次k的数据
+        k_list.append(k)
+        sse_list.append(aver_sse)
+        cluster_list.append(cluster)
+
+    print("k: ", k_list)
+    print("SSE: ", sse_list)
+    
+    dsse_list = [sse_list[i+1] - sse_list[i] for i in range(len(sse_list)-1)]
+    print("k(SSE'): ", k_list[:-1])
+    print("SSE': ", dsse_list)
+    
+    ddsse_list = [dsse_list[i+1] - dsse_list[i] for i in range(len(dsse_list)-1)]
+    print("k(SSE''): ", k_list[1:-1])
+    print("SSE'': ", ddsse_list)
+
+    midx = ddsse_list.index(max(ddsse_list))
+    best_k = k_list[1:-1][midx]
+    print("\n# 最佳k =", best_k)
+
+    best_cluster = None
+    for i in range(len(k_list)):
+        if k_list[i] == best_k:
+            best_cluster = cluster_list[i]
+    assert(best_cluster is not None)
+    return best_cluster
+
 
 
 # -------------------------------------------------------------------
@@ -129,10 +185,12 @@ def main():
     from util import myprint
     dataset, real_labels = getdata.get_cluster_data()
     real_classes_count = len(set(real_labels))
-    cluster_labels = KMeans(real_classes_count, dataset)
+    
+    cluster_labels = KMeans(3, dataset)
+    # cluster_labels = autoKMeans(2, 8, dataset, repeat=128)
 
     # output
-    myprint.set_stdout("KMeans_result.csv")
+    myprint.set_stdout("KMeans.csv")
     myprint.print_cluster_data(cluster_labels)
     myprint.reset_stdout()
 

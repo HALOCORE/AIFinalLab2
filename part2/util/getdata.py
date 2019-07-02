@@ -37,6 +37,10 @@ def get_cluster_data():
     elems, labels = get_data("./data/Frogs_MFCCs.csv")
     return elems, labels
 
+def get_HC_cluster_data():
+    elems, labels = get_data("./data/HC_Frogs_MFCCs.csv")
+    return elems, labels
+
 
 def get_fake_cluster_data():
     elems, labels = get_data("./data/fakedata.csv")

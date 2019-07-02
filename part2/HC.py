@@ -60,7 +60,7 @@ def HC(data, n_clusters, cluster_ratio=0.95):
     """增加了第三个默认参数，用于防止离群点干扰。
     当前4大的cluster加起来占比超过cluster_ratio，第一阶段结束。然后对于剩下的点，就近分配。"""
     datalen = len(data)
-    print("# HC 初始化.")
+    print("# HC 初始化. datasize=", datalen, " n_clusters=", n_clusters, "  ratio=", cluster_ratio)
     
     # 每个数据元素所属的cluster编号 
     idx_list = list(range(datalen))
@@ -156,8 +156,14 @@ def HC(data, n_clusters, cluster_ratio=0.95):
             idx_list[elem_idx] = best_idx
 
     print("# HC 完成.")
-    assert(len(set(idx_list)) == n_clusters)
-    return idx_list
+    idxset = set(idx_list)
+    assert(len(idxset) == n_clusters)
+    st_idx = 1
+    idx_trdict = dict()
+    for idx in idxset:
+        idx_trdict[idx] = st_idx
+        st_idx += 1
+    return [idx_trdict[idx] for idx in idx_list]
 
     
 # -----------------------------------------------------------------------
@@ -173,7 +179,8 @@ def test():
     plt.show()
 
     cluster_labels = HC(dataset, 7)
-
+    
+    print(cluster_labels)
     plt.scatter([x[0] for x in dataset], [x[1] for x in dataset], c=cluster_labels)
     plt.show()
 
@@ -182,12 +189,12 @@ def main():
     from util import getdata
     from util import evaluate
     from util import myprint
-    dataset, real_labels = getdata.get_cluster_data()
+    dataset, real_labels = getdata.get_HC_cluster_data()
     real_class_count = len(set(real_labels))
     cluster_labels = HC(dataset, real_class_count)
 
     # output
-    myprint.set_stdout("HC_result.csv")
+    myprint.set_stdout("HC.csv")
     myprint.print_cluster_data(cluster_labels)
     myprint.reset_stdout()
 
