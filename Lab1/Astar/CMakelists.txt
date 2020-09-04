@@ -1,0 +1,26 @@
+# CMake 最低版本要求
+cmake_minimum_required(VERSION 2.8)
+
+# 项目信息
+project("1-star")
+
+# include 路径
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+# 设置可执行文件路径
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
+# 设置debug
+SET(CMAKE_BUILD_TYPE "debug")
+if(CMAKE_BUILD_TYPE STREQUAL debug)
+    add_definitions(-D_DEBUG)
+endif()
+
+# 查找当前目录下所有源文件
+aux_source_directory(./src DIR_SRCS)
+SET(DIR_SRCS_ASTAR ${DIR_SRCS} ./main_astar.cpp)
+SET(DIR_SRCS_IDASTAR ${DIR_SRCS} ./main_idastar.cpp)
+
+# 指定生成目标
+add_executable(astar ${DIR_SRCS_ASTAR})
+add_executable(idastar  ${DIR_SRCS_IDASTAR})

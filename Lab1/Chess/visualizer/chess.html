@@ -1,0 +1,165 @@
+<html>
+    <head>
+        <title>Chess 5</title>
+        <script>
+        function set_text(id, text, color){
+            var lab = document.getElementById(id);
+            if(lab){
+                //lab.value = text;
+                lab.innerText = text;
+            }
+            if(color){
+                lab.style.color = color;
+            }
+        }
+
+        function draw_canvas(chmap){
+            var cvs = document.getElementById("cvs");
+            var cxt= cvs.getContext("2d");
+            
+            var width = cvs.width;
+            var height = cvs.height;
+            cxt.clearRect(0, 0, width, height);
+            
+            function pix(i){return (i+1)*width/16;}
+            for(var i=0; i<15; i++){
+                cxt.moveTo(pix(i), pix(0));
+                cxt.lineTo(pix(i), pix(14));
+                cxt.stroke();
+                cxt.moveTo(pix(0), pix(i));
+                cxt.lineTo(pix(14), pix(i));
+                cxt.stroke();
+            }
+            for(var i=0; i<15; i++){
+                for(var j=0; j<15; j++){
+                    var cp = chmap[i][j];
+                    var iscp = false;
+                    if(cp == 'O'){
+                        cxt.fillStyle="#FFFFFF";
+                        iscp = true;
+                    }
+                    if(cp == 'X'){
+                        cxt.fillStyle="#000000";
+                        iscp = true;
+                    }
+                    if(iscp){
+                        cxt.beginPath();
+                        cxt.arc(pix(j), pix(i), 10, 0, Math.PI*2, true);
+                        cxt.closePath();
+                        cxt.fill();
+                        cxt.stroke();
+                    }
+                }
+            }
+        }
+        </script>
+        <script>
+        var ws_input = new WebSocket("ws://localhost:8765");
+        ws_input.onopen = function(evt) { 
+            set_text("in_stat", "ws_input open SUCCEED.", "green"); 
+            //ws_input.send(JSON.stringify({"type": "OPEN"}));
+        };
+        
+        ws_input.onmessage = function(evt) {
+            set_text("in_stat", "ws_input MSG: " + evt.data);
+        };
+
+        ws_input.onclose = function(evt) {
+            set_text("in_stat", "ws_input CLOSED.", "red");
+        };
+
+        function send_data(x, y){
+            var data_object = {
+                'type': 'STEP',
+                'x': x,
+                'y': y,
+            };
+            ws_input.send(JSON.stringify(data_object));
+        }
+
+        function send_cmd(cmd){
+            var cmd_object = {
+                'type': 'CMD',
+                'command': cmd
+            };
+            ws_input.send(JSON.stringify(cmd_object));
+        }
+        </script>
+        <script>
+        var ws_output = new WebSocket("ws://localhost:8788");
+        ws_output.onopen = function(evt) { 
+            set_text("out_stat", "ws_output open SUCCEED.", "green"); 
+        };
+        
+        ws_output.onmessage = function(evt) {
+            data = JSON.parse(evt.data);
+            if(data['type'] == 'STATUS'){
+                draw_canvas(data['chess_map']);
+                set_text("out_stat", "ws_output STATUS recieved. tick=" +data['tick'], "green");
+            }
+        };
+
+        ws_output.onclose = function(evt) {
+            set_text("out_stat", "ws_output CLOSED.", "red");
+        };
+        </script>
+    </head>
+    <body>
+        <div>
+            <div><label id="in_stat"></label></div>
+            <div><label id="out_stat"></label></div>
+            <div><label id="select_pos"></label></div>
+        </div>
+
+        <div style="height:420px;">
+            <canvas id="cvs" width="400" height="400" style="position:absolute; z-index: 1;"></canvas>
+            <canvas id="cvs-fore" width="400" height="400" style="position:absolute; z-index: 2; background: transparent"></canvas>
+        </div>
+        <div>
+            <button onclick="send_cmd('SHUTDOWN');">SHUTDOWN</button>
+        </div>
+        <script>
+        var cvs = document.getElementById("cvs-fore");
+        var sel_label = document.getElementById("select_pos");
+        cvs.onmousemove = function(e){
+            // console.log(e);
+            var cvs = e.target;
+            var width = cvs.width;
+            var cxt = cvs.getContext("2d");
+            
+            cxt.clearRect(0, 0, cvs.width, cvs.height);
+
+            function pix(i){return (i+1)*width/16;};
+            function idx(p){return Math.round((p * 16 / width)-1);};
+            function valid(i){if(i>=0 && i<15) return true; else return false;};
+            var id_i = idx(e.offsetX);
+            var id_j = idx(e.offsetY);
+            if(!valid(id_i) || !valid(id_j)) return;
+            
+            sel_label.innerText = "选择: (" + id_j + ", " + id_i + ")";
+            cxt.strokeStyle = "#99999922";
+            cxt.fillStyle = "#55555522";
+            cxt.beginPath();
+            cxt.arc(pix(id_i), pix(id_j), 10, 0, Math.PI*2, true);
+            cxt.closePath();
+            cxt.fill();
+            cxt.stroke();
+        };
+        cvs.onclick = function(e){
+            var cvs = e.target;
+            var width = cvs.width;
+            var cxt = cvs.getContext("2d");
+
+            function idx(p){return Math.round((p * 16 / width)-1);};
+            function valid(i){if(i>=0 && i<15) return true; else return false;};
+            var id_i = idx(e.offsetX);
+            var id_j = idx(e.offsetY);
+            if(!valid(id_i) || !valid(id_j)) return;
+
+            cxt.clearRect(0, 0, cvs.width, cvs.height);
+
+            send_data(id_j, id_i);
+        }
+        </script>
+    </body>
+</html>
